@@ -17,10 +17,10 @@ The Information Architecture generated can be exported to an excel file and incl
 ## Assumptions
 
 * Full control over the site
-* Read permission over the Libraries (Minimum). You will need full control over the Library if you want to get the security settings, otherwise you will see something like the following image indicating that you have "NO ACCESS" to see the security configuration.
+* Read permission over the Libraries (Minimum). You will need full control over the Library if you want to get the security settings, otherwise you will see something like the following image as output indicating that you have "NO ACCESS" to see the security configuration.
 
 ![ScreenShot](https://cloud.githubusercontent.com/assets/1313018/16670125/cf30f978-4466-11e6-9873-19d296813d83.png)
 
 ## License
 
-MIT
+**MIT** Copyright (c) 2016 <a href="mailto:yngrdyn@gmail.com">Yngrid D Coello</a>
