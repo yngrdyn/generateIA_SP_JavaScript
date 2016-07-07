@@ -13,7 +13,7 @@ The Information Architecture generated can be exported to an excel file and incl
 ## Assumptions
 
 * Full control over the site
-* At least read permission over the Libraries
+* Read permission over the Libraries (Minimum)
 
 ## License
 
