@@ -8,7 +8,7 @@ The Information Architecture generated includes:
 * Content Types used in each library of the site.
 * Default values per library.
 
-## Requirements
+## Assumptions
 
 * Full control over the site
 * At least read permission over the Libraries
