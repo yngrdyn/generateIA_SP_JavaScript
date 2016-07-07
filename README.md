@@ -8,3 +8,11 @@ The Information Architecture generated includes:
 * Content Types used in each library of the site.
 * Default values per library.
 
+## Requirements
+
+* Full control over the site
+* At least read permission over the Libraries
+
+## License
+
+MIT
