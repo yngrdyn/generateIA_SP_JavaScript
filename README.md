@@ -1,11 +1,9 @@
 # generateIA_SP_JavaScript 
 
-
 ![ScreenShot](https://cloud.githubusercontent.com/assets/1313018/16668467/1c5f4662-445f-11e6-8c3e-b6ff2396e9bf.png)
+This is script that generates the Information Architecture of a **SharePoint site** from the site URL using jQuery and JSOM.
 
-This is script that generates the Information Architecture of a **SharePoint site** just using the site URL.
-
-The Information Architecture generated includes:
+The Information Architecture generated can be exported to an excel file and includes:
 * Site Structure: Libraries, Folders, Subsites.
 * Security of the site an its elements.
 * Content Types used in each library of the site.
