@@ -16,6 +16,7 @@ The Information Architecture generated can be exported to an excel file and incl
 
 ## Assumptions
 
+* The Script is in the same domain of the site.
 * Full control over the site
 * Read permission over the Libraries (Minimum). You will need full control over the Library if you want to get the security settings, otherwise you will see something like the following image as output indicating that you have "NO ACCESS" to see the security configuration.
 
