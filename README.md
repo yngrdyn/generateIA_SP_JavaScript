@@ -10,6 +10,8 @@ The Information Architecture generated can be exported to an excel file and incl
 * Content Types used in each library of the site.
 * Default values per library.
 
+![ScreenShot](https://cloud.githubusercontent.com/assets/1313018/16669614/7a08ce82-4464-11e6-9a22-600b1236fcbf.png)
+
 ## Assumptions
 
 * Full control over the site
