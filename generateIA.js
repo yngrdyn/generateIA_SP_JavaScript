@@ -618,7 +618,7 @@ $(function() {
 			web = ctx.get_web();
 			list = web.get_lists().getByTitle(actualLibrary['name']);
 
-			ctx.load(list,'RootFolder.Folders.Include(Name,ServerRelativeUrl,ListItemAllFields.RoleAssignments.Include(Member,RoleDefinitionBindings))');
+			ctx.load(list,'RootFolder.Folders.Include(Name,ServerRelativeUrl,Folders,ListItemAllFields.RoleAssignments.Include(Member,RoleDefinitionBindings))');
 			ctx.load(list,'RootFolder.ServerRelativeUrl');
 			ctx.load(list,'RoleAssignments.Include(Member,RoleDefinitionBindings)');
 			ctx.executeQueryAsync(function(){onQuerySucceededRetrieveAllLibrariesInfo(actualLibrary['structure'],actualLibrary['url'],actualLibrary['name'])}, onQueryFailedRetrieveAllLibrariesInfo);
@@ -639,7 +639,7 @@ $(function() {
 			var folder = foldersEnumerator.get_current();
 			if(spFolders.indexOf(folder.get_name())==-1){
 				Folders[folder.get_name()] = {};
-				//console.log(folder.get_serverRelativeUrl())
+
 				if(getSecurity){
 					var permissionsEnumerator = folder.get_listItemAllFields().get_roleAssignments().getEnumerator();
 					var permissions = {};
@@ -663,6 +663,15 @@ $(function() {
 						Folders[folder.get_name()]['Permissions'][permission] = permissions[permission];
 					}
 				}
+				
+				console.log(folder.get_name());
+				var subFoldersEnumerator = folder.get_folders().getEnumerator();
+				
+				while (subFoldersEnumerator.moveNext()) {
+					var subFolder = subFoldersEnumerator.get_current();
+					console.log(subFolder.get_name());
+				}
+				
 			}
 		}
 		
@@ -703,8 +712,8 @@ $(function() {
 	}
 		
 	function onQueryFailedRetrieveAllLibrariesInfo(sender, args) {
-		/*alert('Request failed. ' + args.get_message() + 
-			'\n' + args.get_stackTrace());*/
+		alert('Request failed. ' + args.get_message() + 
+			'\n' + args.get_stackTrace());
 		console.log("error onQueryFailedRetrieveAllLibrariesInfo");
 		retrieveAllLibrariesInfo();
 	}
@@ -713,7 +722,7 @@ $(function() {
 		
 		if(getDefaults){
 			var actualLibrary = queueLibrariesDefaults.pop();
-			console.log(actualLibrary);
+			//console.log(actualLibrary);
 			
 			if(typeof actualLibrary === "undefined"){
 				if(queueLibrariesDefaults.length > 0){
@@ -795,7 +804,7 @@ $(function() {
 									$.ajax(this);
 								}else{
 									var secondAux = auxName.replace(/\./g,"");
-									console.log(secondAux);
+									//console.log(secondAux);
 									this.url = actualLibrary['url'] + '/' + encodeURI(secondAux) + '/Forms/client_LocationBasedDefaults.html';
 									$.ajax(this);
 								}
@@ -1357,7 +1366,7 @@ $(function() {
 		
 		$("#InfoOptions").show();
 		
-		console.log(columnsCount);
+		//console.log(columnsCount);
 
 	}
 	
@@ -1604,7 +1613,7 @@ $(function() {
 			table += "</tr>";
 			if("libraries" in currentStructure[subsite]){
 				if(getViews){
-					var id_aux = subsite.replace(/\s/g,"_").replace(/,/g,"_");
+					var id_aux = subsite.replace(/\s/g,"_").replace(/,/g,"_").replace(/'/g, '');
 					var tableViews = "<table style='display:none;' id='libraryViews_" + id_aux + "' class='libraryViews' cellspacing='0'>";
 					tableViews += "<tr>";
 						tableViews += "<td style='color:#084B8A;font-weight:bold;' colspan='2'>Site</td><td align='center' colspan='" + (Object.keys(currentStructure[subsite]['libraries']).length) + "'>" + subsite + "</td>";
@@ -1632,7 +1641,7 @@ $(function() {
 					$("#displayResults").append(tableViews);
 				}
 
-				table += displayLibraries(currentStructure[subsite]["libraries"],subsite.replace(/\s/g,"_").replace(/,/g,"_"));
+				table += displayLibraries(currentStructure[subsite]["libraries"],subsite.replace(/\s/g,"_").replace(/,/g,"_").replace(/'/g, ''));
 			}
 			
 			tableProperties = "";
