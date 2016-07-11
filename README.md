@@ -12,7 +12,7 @@ The Information Architecture generated can be exported to an excel file and incl
 * Site metadata (Property bag values).
 * Library views.
 
-![ScreenShot](https://cloud.githubusercontent.com/assets/1313018/16669614/7a08ce82-4464-11e6-9a22-600b1236fcbf.png)
+![ScreenShot](https://cloud.githubusercontent.com/assets/1313018/16732133/9aeb1046-4749-11e6-847a-4c11c20db183.png)
 
 ## Assumptions
 
