@@ -667,8 +667,11 @@ $(function() {
 				console.log(folder.get_name());
 				var subFoldersEnumerator = folder.get_folders().getEnumerator();
 				
+				Folders[folder.get_name()]['Folders'] = {};
+				
 				while (subFoldersEnumerator.moveNext()) {
 					var subFolder = subFoldersEnumerator.get_current();
+					Folders[folder.get_name()]['Folders'][subFolder.get_name()] = {};
 					console.log(subFolder.get_name());
 				}
 				
