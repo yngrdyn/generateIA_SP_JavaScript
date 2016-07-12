@@ -248,9 +248,12 @@ $(function() {
 						
 					}
 					if(getStructure || getViews){
-						queue.push({'url':structure['url'],'structure':structure['libraries']});
 						$("#progressMessages").html("").append("<img src='/teams/ITE/Office365/eZShare/SiteAssets/loading.gif'/>&nbsp;Retrieving Libraries");
+						for(var i=0;i<queue.length;i++){
+							console.log(queue[i]);
+						}
 						retrieveAllLibraries();
+						
 					}else{
 						retrieveRootProperties();
 					}
@@ -359,6 +362,11 @@ $(function() {
 			ctx.executeQueryAsync(function(){onQuerySucceeded(actualSite['structure'],actualSite['url'])}, onQueryFailed);
 		}else{
 			if(getStructure){
+				/*
+				for(var i=0;i<queueLibraries.length;i++){
+					console.log(queueLibraries[i]);
+				}
+				*/
 				retrieveAllLibrariesInfo();
 			}else{
 				retrieveRootProperties();
@@ -635,10 +643,12 @@ $(function() {
 		var foldersEnumerator = list.get_rootFolder().get_folders().getEnumerator();
 	
 		var Folders = {};
+		librariesStructure['Folders'] = {};
+		console.log(name);
 		while (foldersEnumerator.moveNext()) {
 			var folder = foldersEnumerator.get_current();
 			if(spFolders.indexOf(folder.get_name())==-1){
-				Folders[folder.get_name()] = {};
+				librariesStructure['Folders'][folder.get_name()] = {};
 
 				if(getSecurity){
 					var permissionsEnumerator = folder.get_listItemAllFields().get_roleAssignments().getEnumerator();
@@ -656,23 +666,23 @@ $(function() {
 						}
 					}
 					
-					Folders[folder.get_name()]['url'] = location.protocol + '//' + location.hostname + folder.get_serverRelativeUrl();
+					librariesStructure['Folders'][folder.get_name()]['url'] = location.protocol + '//' + location.hostname + folder.get_serverRelativeUrl();
 					
-					Folders[folder.get_name()]['Permissions'] = {};
+					librariesStructure['Folders'][folder.get_name()]['Permissions'] = {};
 					for(var permission in permissions){
-						Folders[folder.get_name()]['Permissions'][permission] = permissions[permission];
+						librariesStructure['Folders'][folder.get_name()]['Permissions'][permission] = permissions[permission];
 					}
 				}
 				
-				console.log(folder.get_name());
 				var subFoldersEnumerator = folder.get_folders().getEnumerator();
 				
-				Folders[folder.get_name()]['Folders'] = {};
+				librariesStructure['Folders'][folder.get_name()]['Folders'] = {};
 				
 				while (subFoldersEnumerator.moveNext()) {
 					var subFolder = subFoldersEnumerator.get_current();
-					Folders[folder.get_name()]['Folders'][subFolder.get_name()] = {};
-					console.log(subFolder.get_name());
+					librariesStructure['Folders'][folder.get_name()]['Folders'][subFolder.get_name()] = {};
+					queueFolders.push({'name':subFolder.get_name(),'structure': librariesStructure['Folders'][folder.get_name()]['Folders'][subFolder.get_name()],"url":url});
+					console.log(name + " - " + folder.get_name() + " - " + subFolder.get_name());
 				}
 				
 			}
@@ -681,7 +691,7 @@ $(function() {
 		librariesStructure['url'] = location.protocol + '//' + location.hostname + list.get_rootFolder().get_serverRelativeUrl();
 		
 		// Setting Folders to the general Structure
-		librariesStructure['Folders'] = Folders;
+		//librariesStructure['Folders'] = Folders;
 		
 		if(getSecurity){
 			$("#progressMessages").html("").append("<img src='/teams/ITE/Office365/eZShare/SiteAssets/loading.gif'/>&nbsp;" + name + " - Retrieving Permissions");
@@ -880,6 +890,7 @@ $(function() {
 		
 		console.log(structure);
 		console.log('finished');
+		console.log(queueFolders);
 		
 		createTableHtml();
 		
