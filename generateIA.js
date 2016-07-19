@@ -2,7 +2,7 @@ var spLibraries = ["Documents","Form Templates","List Template Gallery","Master 
 var spFields = ["Approval Status"];
 var spRoles = ["Limited Access"];
 var spFolders = ["Forms","_w","_t"];
-var spInternalNames = {"Series_x0020_Corporate_x0020_IDB":"Series", "Function_x0020_Corporate_x0020_IDB":"Function", "Project_x0020_Number":"Project Number", "System_x0020_Name":"System Name", "Function Corporate IDB":"Function", "Series Corporate IDB":"Series", "Document_x0020_Author":"Document Author","Function_x0020_Operations_x0020_IDB":"Function","Series_x0020_Operations_x0020_IDB":"Series","Approval_x0020_Number":"Approval Number","Sector_x0020_IDB":"Sector IDB","_dlc_DocIdUrl":"Document ID","Fiscal_x0020_Year_x0020_IDB":"Fiscal Year","TaxKeyword":"Tags","IDBDocs_x0020_Number":"IDBDocs Number","Editor":"Modified By"};
+var spInternalNames = {"Series_x0020_Corporate_x0020_IDB":"Series", "Function_x0020_Corporate_x0020_IDB":"Function", "Project_x0020_Number":"Project Number", "System_x0020_Name":"System Name", "Function Corporate IDB":"Function", "Series Corporate IDB":"Series", "Document_x0020_Author":"Document Author","Function_x0020_Operations_x0020_IDB":"Function","Series_x0020_Operations_x0020_IDB":"Series","Approval_x0020_Number":"Approval Number","Sector_x0020_IDB":"Sector IDB","_dlc_DocIdUrl":"Document ID","Fiscal_x0020_Year_x0020_IDB":"Fiscal Year","TaxKeyword":"Tags","IDBDocs_x0020_Number":"IDBDocs Number","Editor":"Modified By","Division_x0020_or_x0020_Unit":"Division or Unit"};
 var spPropertyBags = ["IDBProjectNumber","IDBSiteName","IDBSector","IDBFund","IDBSiteCoordinator","IDBProjectName","IDBOrgUnit","IDBOperationType","IDBOrganizationalFunction","IDBCountry","IDBSiteType","IDBCreatedOn","IDBCreatedby","IDBSiteDescription","IDBSubSector"];
 var spViews = ['Merge Documents','Relink Documents','assetLibTemp'];
 var ordinals = ["First","Second","Third","Fourth","Fifth","Sixth","Seventh","Eight"];
@@ -168,6 +168,7 @@ $(function() {
 			ContentTypeDepth = 1;
 			defaultsDepth = 1;
 			securityDepth = 1;
+			foldersDepth = 0;
 			getMetadata = true;
 			getStructure = true;
 			getSecurity = true;
@@ -991,7 +992,7 @@ $(function() {
 		
 		// First row
 		table += "<tr>";
-			table += "<td colspan='" + (3 + SubsiteDepth) + "' class='first' style='background:#0B3861;color:#fff;border:0;border-right: 2px solid #ddd;' padding='10'><h1 style='color:#fff;font-weight:400;'>Site Structure</h1></td>";
+			table += "<td colspan='" + (2 + SubsiteDepth + foldersDepth) + "' class='first' style='background:#0B3861;color:#fff;border:0;border-right: 2px solid #ddd;' padding='10'><h1 style='color:#fff;font-weight:400;'>Site Structure</h1></td>";
 			if(getSecurity){
 				table += "<td colspan='" + securityDepth + "' style='background:#0B3861;color:#fff;border:0;border-right: 2px solid #ddd;' padding='10' align='center'><h1 style='color:#fff;font-weight:400;'>Security</h1></td>";
 			}
@@ -1070,8 +1071,8 @@ $(function() {
 		table += "<tr>";
 			//table += "<td style='background:#0B3861;color:#fff;border:0;'></td>";
 			table += "<td class='first'  style='background:#0B3861;color:#fff;border:0;min-width:80px;' padding='5' align='center'>Site Collection</td>";
-			for(var i =0; i < SubsiteDepth+2;i++){
-				if(i==SubsiteDepth+2-1)
+			for(var i =0; i < SubsiteDepth + 1 + foldersDepth;i++){
+				if(i==SubsiteDepth + 1 + foldersDepth -1)
 					table += "<td class='first' style='background:#0B3861;color:#fff;border:0;border-right: 2px solid #ddd;min-width:80px;'></td>";
 				else
 					table += "<td class='first' style='background:#0B3861;color:#fff;border:0;min-width:80px;'></td>";
@@ -1106,8 +1107,8 @@ $(function() {
 		table += "<tr>";
 			//table += "<td style='background:#0B3861;color:#fff;border:0;'></td>";
 			table += "<td style='background:#0B3861;color:#fff;border:0;'></td><td style='background:#0B3861;color:#fff;border:0;' padding='5' align='center'>Root Site</td>";
-			for(var i =0; i < SubsiteDepth-1+2;i++){
-				if(i==SubsiteDepth-1+2-1)
+			for(var i =0; i < SubsiteDepth - 1 + 1 + foldersDepth;i++){
+				if(i==SubsiteDepth - 1 + 1 + foldersDepth -1)
 					table += "<td style='background:#0B3861;color:#fff;border:0;border-right: 2px solid #ddd;'></td>";
 				else
 					table += "<td style='background:#0B3861;color:#fff;border:0;'></td>";
@@ -1143,15 +1144,15 @@ $(function() {
 		
 		table = "";
 		// Subsites Rows
-		for(var i =0; i < SubsiteDepth-1;i++){
+		for(var i =0; i < SubsiteDepth + foldersDepth;i++){
 			table += "<tr>";
 				//table += "<td style='background:#0B3861;color:#fff;border:0;'>No.</td>";
 				for(var j=0;j<2+i;j++){
 					table += "<td style='background:#0B3861;color:#fff;border:0;'></td>";
 				}
 				table += "<td style='background:#0B3861;color:#fff;border:0;' padding='5' align='center'>Sub-Site L" + (i+1) + "</td>";
-				for(var j =0; j < SubsiteDepth-(i+2)+2;j++){
-					if(j==SubsiteDepth-(i+2)+2-1)
+				for(var j =0; j < SubsiteDepth-(i+2) + 1 + foldersDepth;j++){
+					if(j==SubsiteDepth-(i+2) + 1 + foldersDepth -1)
 						table += "<td style='background:#0B3861;color:#fff;border:0;border-right: 2px solid #ddd;'></td>";
 					else
 						table += "<td style='background:#0B3861;color:#fff;border:0;'></td>";
@@ -1193,7 +1194,13 @@ $(function() {
 			for(var i=0;i<SubsiteDepth-1+2;i++){
 				table += "<td style='background:#0B3861;color:#fff;border:0;'></td>";
 			}
-			table += "<td style='background:#0B3861;color:#fff;border:0;' padding='5' align='center'>Library</td><td style='background:#0B3861;color:#fff;border:0;border-right: 2px solid #ddd;'></td>";
+			table += "<td style='background:#0B3861;color:#fff;border:0;' padding='5' align='center'>Library</td>"
+			for(var i=0;i<foldersDepth;i++){
+				if(i == foldersDepth-1)
+					table += "<td style='background:#0B3861;color:#fff;border:0;border-right: 2px solid #ddd;'></td>";
+				else
+					table += "<td style='background:#0B3861;color:#fff;border:0;'></td>";
+			}
 			if(getSecurity){
 				for(var i =0; i < securityDepth;i++){
 					if(i==securityDepth-1)
@@ -1225,45 +1232,86 @@ $(function() {
 		
 		table = "";
 		// Folder Row
-		table += "<tr>";
-			//table += "<td style='background:#0B3861;color:#fff;border:0;'>No.</td>";
-			for(var i=0;i<SubsiteDepth+2;i++){
-				table += "<td style='background:#0B3861;color:#fff;border:0;'></td>";
-			}
-			table += "<td style='background:#0B3861;color:#fff;border:0;border-right: 2px solid #ddd;' padding='5' align='center'>Folder</td>";
-			if(getSecurity){
-				if(listMembers.length>0){
-					for(var j=0; j< listMembers.length;j++){
-						if(j==listMembers.length-1)
-							table += "<td style='background:#0B3861;color:#fff;border:0;border-right: 2px solid #ddd;' align='center' class='rotate'><div><span>" + listMembers[j] + "</span></div></td>";
-						else
-							table += "<td style='background:#0B3861;color:#fff;border:0;' align='center' class='rotate'><div><span>" + listMembers[j] + "</span></div></td>";
+		for(var index = 0; index < foldersDepth; index++){
+			table += "<tr>";
+				//table += "<td style='background:#0B3861;color:#fff;border:0;'>No.</td>";
+				for(var i=0;i<SubsiteDepth+2;i++){
+					table += "<td style='background:#0B3861;color:#fff;border:0;'></td>";
+				}
+				for (var subindex = 0; subindex < index; subindex++){
+					table += "<td style='background:#0B3861;color:#fff;border:0;'></td>";
+				}
+				if(index == foldersDepth-1){
+					table += "<td style='background:#0B3861;color:#fff;border:0;border-right: 2px solid #ddd;' padding='5' align='center'>Folder</td>";
+					if(getSecurity){
+						if(listMembers.length>0){
+							for(var j=0; j< listMembers.length;j++){
+								if(j==listMembers.length-1)
+									table += "<td style='background:#0B3861;color:#fff;border:0;border-right: 2px solid #ddd;' align='center' class='rotate'><div><span>" + listMembers[j] + "</span></div></td>";
+								else
+									table += "<td style='background:#0B3861;color:#fff;border:0;' align='center' class='rotate'><div><span>" + listMembers[j] + "</span></div></td>";
+							}
+						}else{
+							table += "<td style='background:#0B3861;color:#fff;border:0;border-right: 2px solid #ddd;'></td>";
+						}
+					}
+					if(getContentTypes){
+						for(var i =0; i < ContentTypeDepth;i++){
+							if(i==0)
+								table += "<td style='background:#0B3861;color:#fff;border:0;' align='center'>Default</td>";
+							else
+								if(i==ContentTypeDepth-1)
+									table += "<td style='background:#0B3861;color:#fff;border:0;border-right: 2px solid #ddd;' align='center'>" + ordinals[i] + "</td>";
+								else
+									table += "<td style='background:#0B3861;color:#fff;border:0;' align='center'>" + ordinals[i] + "</td>"
+						}
+					}
+					if(getDefaults){
+						if(defaultsDepth>0){
+							for(var j=0; j< listDefaults.length;j++){
+								table += "<td style='background:#0B3861;color:#fff;border:0;' align='center'>" + listDefaults[j] + "</td>";
+							}
+						}else{
+							table += "<td style='background:#0B3861;color:#fff;border:0;border-right: 2px solid #ddd;'></td>";
+						}
 					}
 				}else{
-					table += "<td style='background:#0B3861;color:#fff;border:0;border-right: 2px solid #ddd;'></td>";
-				}
-			}
-			if(getContentTypes){
-				for(var i =0; i < ContentTypeDepth;i++){
-					if(i==0)
-						table += "<td style='background:#0B3861;color:#fff;border:0;' align='center'>Default</td>";
-					else
-						if(i==ContentTypeDepth-1)
-							table += "<td style='background:#0B3861;color:#fff;border:0;border-right: 2px solid #ddd;' align='center'>" + ordinals[i] + "</td>";
+					table += "<td style='background:#0B3861;color:#fff;border:0;' padding='5' align='center'>Folder</td>";
+					for (var subindex = index+1; subindex < foldersDepth; subindex++){
+						if(subindex == foldersDepth - 1)
+							table += "<td style='background:#0B3861;color:#fff;border:0;border-right: 2px solid #ddd;'></td>";
 						else
-							table += "<td style='background:#0B3861;color:#fff;border:0;' align='center'>" + ordinals[i] + "</td>"
-				}
-			}
-			if(getDefaults){
-				if(defaultsDepth>0){
-					for(var j=0; j< listDefaults.length;j++){
-						table += "<td style='background:#0B3861;color:#fff;border:0;' align='center'>" + listDefaults[j] + "</td>";
+							table += "<td style='background:#0B3861;color:#fff;border:0;'></td>";
 					}
-				}else{
-					table += "<td style='background:#0B3861;color:#fff;border:0;border-right: 2px solid #ddd;'></td>";
+					if(getSecurity){
+						for(var i =0; i < securityDepth;i++){
+							if(i==securityDepth-1)
+								table += "<td style='background:#0B3861;color:#fff;border:0;border-right: 2px solid #ddd;'></td>";
+							else
+								table += "<td style='background:#0B3861;color:#fff;border:0;'></td>";
+						}
+					}
+					if(getContentTypes){
+						for(var i =0; i<ContentTypeDepth;i++){
+							if(i==ContentTypeDepth-1)
+								table += "<td style='background:#0B3861;color:#fff;border:0;border-right: 2px solid #ddd;'></td>";
+							else
+								table += "<td style='background:#0B3861;color:#fff;border:0;'></td>"
+						}
+					}
+					if(getDefaults){
+						if(defaultsDepth>0){
+							for(var i =0; i < listDefaults.length;i++){
+								table += "<td style='background:#0B3861;color:#fff;border:0;'></td>";
+							}
+						}else{
+							table += "<td style='background:#0B3861;color:#fff;border:0;'></td>";
+						}
+					}
 				}
-			}
-		table += "</tr>";
+				
+			table += "</tr>";
+		}
 		
 		table += "</thead>";
 		table += "<body>";
