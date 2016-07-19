@@ -950,7 +950,7 @@ $(function() {
 		
 		console.log(structure);
 		console.log('finished');
-		console.log(foldersDepth);
+		console.log(SubsiteDepth);
 		
 		createTableHtml();
 		
@@ -1144,7 +1144,7 @@ $(function() {
 		
 		table = "";
 		// Subsites Rows
-		for(var i =0; i < SubsiteDepth + foldersDepth;i++){
+		for(var i =0; i < SubsiteDepth-1;i++){
 			table += "<tr>";
 				//table += "<td style='background:#0B3861;color:#fff;border:0;'>No.</td>";
 				for(var j=0;j<2+i;j++){
@@ -1323,9 +1323,9 @@ $(function() {
 		table += "<tr>";
 			//table += "<td style='color:#1c1c1c;'>1</td>";
 			if("Title" in structure){
-				table += "<td style='color:#1c1c1c;border-right: 2px solid #0B3861;' colspan='" + (SubsiteDepth+2+1) + "'>" + structure["Title"] + "</td>";
+				table += "<td style='color:#1c1c1c;border-right: 2px solid #0B3861;' colspan='" + (SubsiteDepth+1+foldersDepth+1) + "'>" + structure["Title"] + "</td>";
 			}else{
-				table += "<td style='color:#1c1c1c;border-right: 2px solid #0B3861;' colspan='" + (SubsiteDepth+2+1) + "'>Site Collection Name (NO ACCESS)</td>";
+				table += "<td style='color:#1c1c1c;border-right: 2px solid #0B3861;' colspan='" + (SubsiteDepth+1+foldersDepth+1) + "'>Site Collection Name (NO ACCESS)</td>";
 			}
 			if(getSecurity){
 				for(var i =0; i < securityDepth;i++){
@@ -1366,8 +1366,8 @@ $(function() {
 			}else{
 				table += "<td style='color:#1c1c1c;'>Root Site Name(NO ACCESS)</td>";
 			}
-			for(var i=0;i<SubsiteDepth-1+2;i++){
-				if(i==SubsiteDepth-1+2-1)
+			for(var i=0;i<SubsiteDepth-1+1+foldersDepth;i++){
+				if(i==SubsiteDepth-1+1+foldersDepth-1)
 					table += "<td style='color:#fff;border-right: 2px solid #0B3861;'></td>";
 				else
 					table += "<td style='color:#1c1c1c;'></td>";
@@ -1528,7 +1528,13 @@ $(function() {
 					table += "<td style='color:#1c1c1c;'></td>";
 				}
 				table += "<td style='color:#1c1c1c;max-width:150px;'><a href='" + currentStructure[library]['url'] + "' target='_blank'>" + library + "</a></td>";
-				table += "<td style='color:#1c1c1c;border-right: 2px solid #0B3861;'></td>";
+				for(var i=0;i<foldersDepth;i++){
+					if(i==foldersDepth-1){
+						table += "<td style='color:#1c1c1c;border-right: 2px solid #0B3861;'></td>";
+					}else{
+						table += "<td style='color:#1c1c1c;'></td>";
+					}
+				}
 				if(getSecurity){
 					if("Permissions" in currentStructure[library]){
 						if(Object.keys(currentStructure[library]["Permissions"]).length > 0){
@@ -1581,7 +1587,16 @@ $(function() {
 					for(var i=0;i<SubsiteDepth-1+2+1;i++){
 						table += "<td style='color:#1c1c1c;'></td>";
 					}
-					table += "<td style='color:#1c1c1c;border-right: 2px solid #0B3861;max-width:150px;'><a href='" + currentStructure[library]["Folders"][folder]['url'] + "' target='_blank'>" + folder + "</a></td>";
+					if(foldersDepth == 1)
+						table += "<td style='color:#1c1c1c;border-right: 2px solid #0B3861;max-width:150px;'><a href='" + currentStructure[library]["Folders"][folder]['url'] + "' target='_blank'>" + folder + "</a></td>";
+					else
+						table += "<td style='color:#1c1c1c;max-width:150px;'><a href='" + currentStructure[library]["Folders"][folder]['url'] + "' target='_blank'>" + folder + "</a></td>";
+					for(var i=0;i<foldersDepth-1;i++){
+						if(i == foldersDepth - 1 - 1)
+							table += "<td style='color:#1c1c1c;border-right: 2px solid #0B3861;'></td>";
+						else
+							table += "<td style='color:#1c1c1c;'></td>";
+					}
 					if(getSecurity){
 						if("Permissions" in currentStructure[library]["Folders"][folder]){
 							if(Object.keys(currentStructure[library]["Folders"][folder]["Permissions"]).length > 0){
@@ -1687,7 +1702,13 @@ $(function() {
 				for(var i=0;i<SubsiteDepth-2-level;i++){
 					table += "<td style='color:#1c1c1c;'></td>";
 				}
-				table += "<td style='color:#1c1c1c;'></td><td style='color:#1c1c1c;border-right: 2px solid #0B3861;'></td>";
+				table += "<td style='color:#1c1c1c;'></td>";
+				for(var i=0;i<foldersDepth;i++){
+					if(i == foldersDepth - 1)
+						table += "<td style='color:#1c1c1c;border-right: 2px solid #0B3861;'></td>";
+					else
+						table += "<td style='color:#1c1c1c;'></td>";
+				}
 				if(getSecurity){
 					if("Permissions" in currentStructure[subsite]){
 						if(Object.keys(currentStructure[subsite]["Permissions"]).length > 0){
