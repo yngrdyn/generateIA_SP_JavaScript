@@ -630,8 +630,10 @@ $(function() {
 			ctx.load(list,'RootFolder.ServerRelativeUrl');
 			ctx.load(list,'RoleAssignments.Include(Member,RoleDefinitionBindings)');
 			ctx.executeQueryAsync(function(){onQuerySucceededRetrieveAllLibrariesInfo(actualLibrary['structure'],actualLibrary['url'],actualLibrary['name'])}, onQueryFailedRetrieveAllLibrariesInfo);
-		}else{		
-			retrieveAllDefaults();
+		}else{
+			console.log(queueLibraries);
+			retrieveFolders();
+			//retrieveAllDefaults();
 		}
 	}
 	
@@ -644,7 +646,6 @@ $(function() {
 	
 		var Folders = {};
 		librariesStructure['Folders'] = {};
-		console.log(name);
 		while (foldersEnumerator.moveNext()) {
 			var folder = foldersEnumerator.get_current();
 			if(spFolders.indexOf(folder.get_name())==-1){
@@ -681,8 +682,7 @@ $(function() {
 				while (subFoldersEnumerator.moveNext()) {
 					var subFolder = subFoldersEnumerator.get_current();
 					librariesStructure['Folders'][folder.get_name()]['Folders'][subFolder.get_name()] = {};
-					queueFolders.push({'name':subFolder.get_name(),'structure': librariesStructure['Folders'][folder.get_name()]['Folders'][subFolder.get_name()],"url":url});
-					console.log(name + " - " + folder.get_name() + " - " + subFolder.get_name());
+					queueFolders.push({'name':subFolder.get_name(),'structure': librariesStructure['Folders'][folder.get_name()]['Folders'][subFolder.get_name()],"url":url,"parent":name + "/" + folder.get_name()});
 				}
 				
 			}
@@ -725,11 +725,58 @@ $(function() {
 	}
 		
 	function onQueryFailedRetrieveAllLibrariesInfo(sender, args) {
+		/*
 		alert('Request failed. ' + args.get_message() + 
 			'\n' + args.get_stackTrace());
+		*/
 		console.log("error onQueryFailedRetrieveAllLibrariesInfo");
 		retrieveAllLibrariesInfo();
 	}
+	
+	function retrieveFolders(){
+		if(queueFolders.length > 0){		
+			
+			var actualFolder = queueFolders.pop();
+			console.log(actualFolder);
+			
+			var ctx = new SP.ClientContext(actualFolder['url']);
+			web = ctx.get_web();
+			list = web.getFolderByServerRelativeUrl(encodeURI(actualFolder['url'] + '/' + actualFolder['parent'] + '/' + actualFolder['name']));
+			
+			ctx.load(list,'Name','ServerRelativeUrl','Folders');
+			
+			ctx.executeQueryAsync(function(){onQuerySucceededRetrieveFolders(actualFolder['structure'],actualFolder['url'],actualFolder['name'])}, onQueryFailedRetrieveFolders);
+			
+			/*
+			var ctx = new SP.ClientContext(actualLibrary['url']);
+			web = ctx.get_web();
+			list = web.get_lists().getByTitle(actualLibrary['name']);
+
+			ctx.load(list,'RootFolder.Folders.Include(Name,ServerRelativeUrl,Folders,ListItemAllFields.RoleAssignments.Include(Member,RoleDefinitionBindings))');
+			ctx.load(list,'RootFolder.ServerRelativeUrl');
+			ctx.load(list,'RoleAssignments.Include(Member,RoleDefinitionBindings)');
+			ctx.executeQueryAsync(function(){onQuerySucceededRetrieveAllLibrariesInfo(actualLibrary['structure'],actualLibrary['url'],actualLibrary['name'])}, onQueryFailedRetrieveAllLibrariesInfo);
+			*/
+		}else{
+			retrieveAllDefaults();
+		}
+	}
+	
+	function onQuerySucceededRetrieveFolders(librariesStructure, url, name, sender, args) {
+		console.log("Inside function");
+		console.log(list.get_name());
+		console.log(list.get_folders());
+		retrieveFolders();
+	}
+		
+	function onQueryFailedRetrieveFolders(sender, args) {
+		alert('Request failed. ' + args.get_message() + 
+			'\n' + args.get_stackTrace());
+		console.log("error onQueryFailedRetrieveAllFolders");
+		retrieveFolders();
+	}
+	
+	
 	
 	function retrieveAllDefaults(){	
 		
