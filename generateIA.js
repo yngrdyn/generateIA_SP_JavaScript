@@ -20,6 +20,7 @@ var SubsiteDepth = 1;
 var ContentTypeDepth = 1;
 var defaultsDepth = 1;
 var securityDepth = 1;
+var foldersDepth = 0;
 var getMetadata = true;
 var getStructure = true;
 var getSecurity = true;
@@ -647,6 +648,8 @@ $(function() {
 		var Folders = {};
 		librariesStructure['Folders'] = {};
 		while (foldersEnumerator.moveNext()) {
+			if(foldersDepth < 1)
+				foldersDepth = 1;
 			var folder = foldersEnumerator.get_current();
 			if(spFolders.indexOf(folder.get_name())==-1){
 				librariesStructure['Folders'][folder.get_name()] = {};
@@ -682,7 +685,7 @@ $(function() {
 				while (subFoldersEnumerator.moveNext()) {
 					var subFolder = subFoldersEnumerator.get_current();
 					librariesStructure['Folders'][folder.get_name()]['Folders'][subFolder.get_name()] = {};
-					queueFolders.push({'name':subFolder.get_name(),'structure': librariesStructure['Folders'][folder.get_name()]['Folders'][subFolder.get_name()],"url":url,"parent":name + "/" + folder.get_name()});
+					queueFolders.push({'name':subFolder.get_name(),'structure': librariesStructure['Folders'][folder.get_name()]['Folders'][subFolder.get_name()],"url":url,"parent":name + "/" + folder.get_name(),"level":2});
 				}
 				
 			}
@@ -745,20 +748,24 @@ $(function() {
 			
 			ctx.load(folder,'Name','ServerRelativeUrl','Folders');
 			
-			ctx.executeQueryAsync(function(){onQuerySucceededRetrieveFolders(actualFolder['structure'],actualFolder['url'],actualFolder['name'],actualFolder['parent'] + '/' + actualFolder['name'])}, onQueryFailedRetrieveFolders);
+			ctx.executeQueryAsync(function(){onQuerySucceededRetrieveFolders(actualFolder['structure'],actualFolder['url'],actualFolder['name'],actualFolder['parent'] + '/' + actualFolder['name'],actualFolder['level'])}, onQueryFailedRetrieveFolders);
 			
 		}else{
 			retrieveAllDefaults();
 		}
 	}
 	
-	function onQuerySucceededRetrieveFolders(librariesStructure, url, name, parent, sender, args) {
+	function onQuerySucceededRetrieveFolders(librariesStructure, url, name, parent, level, sender, args) {
 		console.log("Inside function");
 		console.log(folder.get_name());
 		console.log(librariesStructure);
 		console.log(url);
 		console.log(name);
 		console.log(parent);
+		console.log(level);
+		
+		if(foldersDepth < level)
+			foldersDepth = level;
 		
 		var subFoldersEnumerator = folder.get_folders().getEnumerator();
 		
@@ -768,7 +775,7 @@ $(function() {
 		while (subFoldersEnumerator.moveNext()) {
 			var subFolder = subFoldersEnumerator.get_current();
 			librariesStructure['Folders'][subFolder.get_name()] = {};
-			queueFolders.push({'name':subFolder.get_name(),'structure': librariesStructure['Folders'][subFolder.get_name()],"url":url,"parent":parent});
+			queueFolders.push({'name':subFolder.get_name(),'structure': librariesStructure['Folders'][subFolder.get_name()],"url":url,"parent":parent,"level": level + 1});
 		}
 		
 		retrieveFolders();
@@ -942,7 +949,7 @@ $(function() {
 		
 		console.log(structure);
 		console.log('finished');
-		console.log(queueFolders);
+		console.log(foldersDepth);
 		
 		createTableHtml();
 		
