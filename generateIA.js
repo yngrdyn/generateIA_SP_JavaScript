@@ -741,31 +741,36 @@ $(function() {
 			
 			var ctx = new SP.ClientContext(actualFolder['url']);
 			web = ctx.get_web();
-			list = web.getFolderByServerRelativeUrl(encodeURI(actualFolder['url'] + '/' + actualFolder['parent'] + '/' + actualFolder['name']));
+			folder = web.getFolderByServerRelativeUrl(encodeURI(actualFolder['url'] + '/' + actualFolder['parent'] + '/' + actualFolder['name']));
 			
-			ctx.load(list,'Name','ServerRelativeUrl','Folders');
+			ctx.load(folder,'Name','ServerRelativeUrl','Folders');
 			
-			ctx.executeQueryAsync(function(){onQuerySucceededRetrieveFolders(actualFolder['structure'],actualFolder['url'],actualFolder['name'])}, onQueryFailedRetrieveFolders);
+			ctx.executeQueryAsync(function(){onQuerySucceededRetrieveFolders(actualFolder['structure'],actualFolder['url'],actualFolder['name'],actualFolder['parent'] + '/' + actualFolder['name'])}, onQueryFailedRetrieveFolders);
 			
-			/*
-			var ctx = new SP.ClientContext(actualLibrary['url']);
-			web = ctx.get_web();
-			list = web.get_lists().getByTitle(actualLibrary['name']);
-
-			ctx.load(list,'RootFolder.Folders.Include(Name,ServerRelativeUrl,Folders,ListItemAllFields.RoleAssignments.Include(Member,RoleDefinitionBindings))');
-			ctx.load(list,'RootFolder.ServerRelativeUrl');
-			ctx.load(list,'RoleAssignments.Include(Member,RoleDefinitionBindings)');
-			ctx.executeQueryAsync(function(){onQuerySucceededRetrieveAllLibrariesInfo(actualLibrary['structure'],actualLibrary['url'],actualLibrary['name'])}, onQueryFailedRetrieveAllLibrariesInfo);
-			*/
 		}else{
 			retrieveAllDefaults();
 		}
 	}
 	
-	function onQuerySucceededRetrieveFolders(librariesStructure, url, name, sender, args) {
+	function onQuerySucceededRetrieveFolders(librariesStructure, url, name, parent, sender, args) {
 		console.log("Inside function");
-		console.log(list.get_name());
-		console.log(list.get_folders());
+		console.log(folder.get_name());
+		console.log(librariesStructure);
+		console.log(url);
+		console.log(name);
+		console.log(parent);
+		
+		var subFoldersEnumerator = folder.get_folders().getEnumerator();
+		
+		librariesStructure['url'] = location.protocol + '//' + location.hostname + folder.get_serverRelativeUrl();
+		librariesStructure['Folders'] = {};
+		
+		while (subFoldersEnumerator.moveNext()) {
+			var subFolder = subFoldersEnumerator.get_current();
+			librariesStructure['Folders'][subFolder.get_name()] = {};
+			queueFolders.push({'name':subFolder.get_name(),'structure': librariesStructure['Folders'][subFolder.get_name()],"url":url,"parent":parent});
+		}
+		
 		retrieveFolders();
 	}
 		
