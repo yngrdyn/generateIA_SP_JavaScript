@@ -989,13 +989,39 @@ $(function() {
 		return table;
 	}
 	
-	function renderSecurityBody(){
+	function renderSecurityBody(structureObject){
 		var table = "";
-		for(var i =0; i < securityDepth;i++){
-			if(i==securityDepth-1)
-				table += "<td style='color:#1c1c1c;background:#BDBDBD;border-right: 2px solid #0B3861;'></td>";
-			else
-				table += "<td style='color:#1c1c1c;background:#BDBDBD;'></td>";
+		if(getSecurity){
+			if(structureObject != null){
+				if("Permissions" in structureObject){
+					if(Object.keys(structureObject["Permissions"]).length > 0){
+						for(var j=0;j<listMembers.length;j++){
+							if(j==listMembers.length-1){
+								if(listMembers[j] in structureObject["Permissions"])
+									table += "<td style='color:#1c1c1c;max-width:150px;border-right: 2px solid #0B3861;' align='center'>" + ezPermissions[structureObject["Permissions"][listMembers[j]]] + "</td>";
+								else
+									table += "<td style='color:#1c1c1c;background:#E6E6E6;border-right: 2px solid #0B3861;' align='center'>0</td>";
+							}else{
+								if(listMembers[j] in structureObject["Permissions"])
+									table += "<td style='color:#1c1c1c;max-width:150px;' align='center'>" + ezPermissions[structureObject["Permissions"][listMembers[j]]] + "</td>";
+								else
+									table += "<td style='color:#1c1c1c;background:#E6E6E6;' align='center'>0</td>";
+							}
+						}	
+					}else{
+						table += "<td style='color:#1c1c1c;background:#F6CECE;border-right: 2px solid #0B3861;' align='center' colspan='" + listMembers.length + "'>NO ACCESS</td>";
+					}
+				}else{
+					table += "<td style='color:#1c1c1c;background:#F6CECE;border-right: 2px solid #0B3861;' align='center' colspan='" + listMembers.length + "'> NO ACCESS </td>";
+				}
+			}else{
+				for(var i =0; i < securityDepth;i++){
+					if(i==securityDepth-1)
+						table += "<td style='color:#1c1c1c;background:#BDBDBD;border-right: 2px solid #0B3861;'></td>";
+					else
+						table += "<td style='color:#1c1c1c;background:#BDBDBD;'></td>";
+				}
+			}
 		}
 		return table;
 	}
@@ -1281,9 +1307,7 @@ $(function() {
 			}else{
 				table += "<td style='color:#1c1c1c;border-right: 2px solid #0B3861;' colspan='" + (SubsiteDepth+1+foldersDepth+1) + "'>Site Collection Name (NO ACCESS)</td>";
 			}
-			if(getSecurity){
-				table += renderSecurityBody();
-			}
+			table += renderSecurityBody(null);
 			if(getContentTypes){
 				for(var i =0; i < ContentTypeDepth;i++){
 					if(i==ContentTypeDepth-1)
@@ -1321,32 +1345,7 @@ $(function() {
 				else
 					table += "<td style='color:#1c1c1c;'></td>";
 			}
-			if(getSecurity){
-				if("Permissions" in structure){
-					if(Object.keys(structure["Permissions"]).length > 0){
-						for(var j=0;j<listMembers.length;j++){
-							if(j==listMembers.length-1){
-								if(listMembers[j] in structure["Permissions"])
-									table += "<td style='color:#1c1c1c;max-width:150px;border-right: 2px solid #0B3861;' align='center'>" + ezPermissions[structure["Permissions"][listMembers[j]]] + "</td>";
-								else
-									table += "<td style='color:#1c1c1c;background:#E6E6E6;border-right: 2px solid #0B3861;' align='center'>0</td>";
-							}else{
-								if(listMembers[j] in structure["Permissions"])
-									table += "<td style='color:#1c1c1c;max-width:150px;' align='center'>" + ezPermissions[structure["Permissions"][listMembers[j]]] + "</td>";
-								else
-									table += "<td style='color:#1c1c1c;background:#E6E6E6;' align='center'>0</td>";
-							}
-						}	
-					}else{
-						table += "<td style='color:#1c1c1c;background:#F6CECE;border-right: 2px solid #0B3861;' align='center' colspan='" + listMembers.length + "'>NO ACCESS</td>";
-					}
-				}else{
-					//for(var j=0;j<listMembers.length;j++){
-						//table += "<td style='color:#1c1c1c;background:#F6CECE;' align='center' colspan='" + listMembers.length + "'></td>";
-						table += "<td style='color:#1c1c1c;background:#F6CECE;border-right: 2px solid #0B3861;' align='center' colspan='" + listMembers.length + "'> NO ACCESS </td>";
-					//}
-				}
-			}
+			table += renderSecurityBody(structure);
 			if(getContentTypes){
 				for(var i =0; i < ContentTypeDepth;i++){
 					if(i==ContentTypeDepth-1)
@@ -1484,32 +1483,7 @@ $(function() {
 						table += "<td style='color:#1c1c1c;'></td>";
 					}
 				}
-				if(getSecurity){
-					if("Permissions" in currentStructure[library]){
-						if(Object.keys(currentStructure[library]["Permissions"]).length > 0){
-							for(var j=0;j<listMembers.length;j++){
-								if(j==listMembers.length-1){
-									if(listMembers[j] in currentStructure[library]["Permissions"])
-										table += "<td style='color:#1c1c1c;max-width:150px;border-right: 2px solid #0B3861;' align='center'>" + ezPermissions[currentStructure[library]["Permissions"][listMembers[j]]] + "</td>";
-									else
-										table += "<td style='color:#1c1c1c;background:#E6E6E6;border-right: 2px solid #0B3861;' align='center'>0</td>";
-								}else{
-									if(listMembers[j] in currentStructure[library]["Permissions"])
-										table += "<td style='color:#1c1c1c;max-width:150px;' align='center'>" + ezPermissions[currentStructure[library]["Permissions"][listMembers[j]]] + "</td>";
-									else
-										table += "<td style='color:#1c1c1c;background:#E6E6E6;' align='center'>0</td>";
-								}
-							}
-						}else{
-							table += "<td style='color:#1c1c1c;background:#F6CECE;border-right: 2px solid #0B3861;' align='center' colspan='" + listMembers.length + "'> NO ACCESS </td>";
-						}						
-					}else{
-						//for(var j=0;j<listMembers.length;j++){
-							//table += "<td style='color:#1c1c1c;' align='center'></td>";
-							table += "<td style='color:#1c1c1c;background:#F6CECE;border-right: 2px solid #0B3861;' align='center' colspan='" + listMembers.length + "'> NO ACCESS </td>";
-						//}
-					}
-				}
+				table += renderSecurityBody(currentStructure[library]);
 				if(getContentTypes){
 					table += contentTypes;
 				}
@@ -1546,32 +1520,7 @@ $(function() {
 						else
 							table += "<td style='color:#1c1c1c;'></td>";
 					}
-					if(getSecurity){
-						if("Permissions" in currentStructure[library]["Folders"][folder]){
-							if(Object.keys(currentStructure[library]["Folders"][folder]["Permissions"]).length > 0){
-								for(var j=0;j<listMembers.length;j++){
-									if(j==listMembers.length-1){
-										if(listMembers[j] in currentStructure[library]["Folders"][folder]["Permissions"])
-											table += "<td style='color:#1c1c1c;max-width:150px;border-right: 2px solid #0B3861;' align='center'>" + ezPermissions[currentStructure[library]["Folders"][folder]["Permissions"][listMembers[j]]] + "</td>";
-										else
-											table += "<td style='color:#1c1c1c;background:#E6E6E6;border-right: 2px solid #0B3861;' align='center'>0</td>";
-									}else{
-										if(listMembers[j] in currentStructure[library]["Folders"][folder]["Permissions"])
-											table += "<td style='color:#1c1c1c;max-width:150px;' align='center'>" + ezPermissions[currentStructure[library]["Folders"][folder]["Permissions"][listMembers[j]]] + "</td>";
-										else
-											table += "<td style='color:#1c1c1c;background:#E6E6E6;' align='center'>0</td>";
-									}
-								}	
-							}else{
-								table += "<td style='color:#1c1c1c;background:#F6CECE;border-right: 2px solid #0B3861;' align='center' colspan='" + listMembers.length + "'>NO ACCESS</td>";
-							}
-						}else{
-							//for(var j=0;j<listMembers.length;j++){
-								//table += "<td style='color:#1c1c1c;background:#F6CECE;' align='center'></td>";
-								table += "<td style='color:#1c1c1c;background:#F6CECE;border-right: 2px solid #0B3861;' align='center' colspan='" + listMembers.length + "'> NO ACCESS </td>";
-							//}
-						}
-					}
+					table += renderSecurityBody(currentStructure[library]["Folders"][folder]);
 					if(getContentTypes){
 						table += contentTypes;
 					}
@@ -1658,32 +1607,7 @@ $(function() {
 					else
 						table += "<td style='color:#1c1c1c;'></td>";
 				}
-				if(getSecurity){
-					if("Permissions" in currentStructure[subsite]){
-						if(Object.keys(currentStructure[subsite]["Permissions"]).length > 0){
-							for(var j=0;j<listMembers.length;j++){
-								if(j==listMembers.length-1){
-									if(listMembers[j] in currentStructure[subsite]["Permissions"])
-										table += "<td style='color:#1c1c1c;max-width:150px;border-right: 2px solid #0B3861;' align='center'>" + ezPermissions[currentStructure[subsite]["Permissions"][listMembers[j]]] + "</td>";
-									else
-										table += "<td style='color:#1c1c1c;background:#E6E6E6;border-right: 2px solid #0B3861;' align='center'>0</td>";
-								}else{
-									if(listMembers[j] in currentStructure[subsite]["Permissions"])
-										table += "<td style='color:#1c1c1c;max-width:150px;' align='center'>" + ezPermissions[currentStructure[subsite]["Permissions"][listMembers[j]]] + "</td>";
-									else
-										table += "<td style='color:#1c1c1c;background:#E6E6E6;' align='center'>0</td>";
-								}
-							}	
-						}else{
-							table += "<td style='color:#1c1c1c;background:#F6CECE;border-right: 2px solid #0B3861;' align='center' colspan='" + listMembers.length + "'>NO ACCESS</td>";
-						}
-					}else{
-						//for(var j=0;j<listMembers.length;j++){
-							//table += "<td style='color:#1c1c1c;' align='center'></td>";
-							table += "<td style='color:#1c1c1c;background:#F6CECE;border-right: 2px solid #0B3861;' align='center' colspan='" + listMembers.length + "'> NO ACCESS </td>";
-						//}
-					}
-				}
+				table += renderSecurityBody(currentStructure[subsite]);
 				if(getContentTypes){
 					for(var i =0; i < ContentTypeDepth;i++){
 						if(i==ContentTypeDepth-1)
