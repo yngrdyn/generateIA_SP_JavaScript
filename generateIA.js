@@ -1051,6 +1051,45 @@ $(function() {
 		return table;
 	}
 	
+	function renderContentTypesBody(structureObject){
+		var table = "";
+		if(getContentTypes){
+			if(structureObject != null){
+				if("contentTypes" in structureObject){
+					for(var i=0;i<structureObject["contentTypes"].length;i++){
+						if(i==structureObject["contentTypes"].length-1 & structureObject["contentTypes"].length==ContentTypeDepth)
+								table += "<td style='color:#1c1c1c;border-right: 2px solid #0B3861;' padding='5'>" + structureObject["contentTypes"][i] + "</td>";
+							else
+								table += "<td style='color:#1c1c1c;max-width:100px;' padding='5'>" + structureObject["contentTypes"][i] + "</td>";
+					}
+					if(structureObject["contentTypes"].length<ContentTypeDepth){
+						for(var i=0; i<(ContentTypeDepth-structureObject["contentTypes"].length);i++){
+							if(i==ContentTypeDepth-structureObject["contentTypes"].length-1)
+								table += "<td style='color:#1c1c1c;border-right: 2px solid #0B3861;'></td>";
+							else
+								table += "<td style='color:#1c1c1c;'></td>";
+						}
+					}
+				}else{
+					for(var i =0; i < ContentTypeDepth;i++){
+						if(i==ContentTypeDepth-1)
+							table += "<td style='color:#1c1c1c;border-right: 2px solid #0B3861;'></td>";
+						else
+							table += "<td style='color:#1c1c1c;'></td>";
+					}
+				}
+			}else{
+				for(var i =0; i < ContentTypeDepth;i++){
+					if(i==ContentTypeDepth-1)
+						table += "<td style='color:#1c1c1c;background:#BDBDBD;border-right: 2px solid #0B3861;'></td>";
+					else
+						table += "<td style='color:#1c1c1c;background:#BDBDBD;'></td>";
+				}
+			}
+		}
+		return table;
+	}
+	
 	function renderDefaultsHeader(renderFields){
 		var table = "";
 		if(getDefaults){
@@ -1308,14 +1347,7 @@ $(function() {
 				table += "<td style='color:#1c1c1c;border-right: 2px solid #0B3861;' colspan='" + (SubsiteDepth+1+foldersDepth+1) + "'>Site Collection Name (NO ACCESS)</td>";
 			}
 			table += renderSecurityBody(null);
-			if(getContentTypes){
-				for(var i =0; i < ContentTypeDepth;i++){
-					if(i==ContentTypeDepth-1)
-						table += "<td style='color:#1c1c1c;background:#BDBDBD;border-right: 2px solid #0B3861;'></td>";
-					else
-						table += "<td style='color:#1c1c1c;background:#BDBDBD;'></td>";
-				}
-			}
+			table += renderContentTypesBody(null);
 			if(getDefaults){
 				if(defaultsDepth>0){
 					for(var i =0; i < listDefaults.length;i++){
@@ -1346,14 +1378,7 @@ $(function() {
 					table += "<td style='color:#1c1c1c;'></td>";
 			}
 			table += renderSecurityBody(structure);
-			if(getContentTypes){
-				for(var i =0; i < ContentTypeDepth;i++){
-					if(i==ContentTypeDepth-1)
-						table += "<td style='color:#1c1c1c;background:#BDBDBD;border-right: 2px solid #0B3861;'></td>";
-					else
-						table += "<td style='color:#1c1c1c;background:#BDBDBD;'></td>";
-				}
-			}
+			table += renderContentTypesBody(null);
 			if(getDefaults){
 				if(defaultsDepth>0){
 					for(var i =0; i < listDefaults.length;i++){
@@ -1442,34 +1467,6 @@ $(function() {
 	function displayLibraries(currentStructure,parent){
 		var table = "";
 		for(var library in currentStructure){
-			// Getting the Content Types
-			var contentTypes = "";
-			if(getContentTypes){
-				if("contentTypes" in currentStructure[library]){
-					for(var i=0;i<currentStructure[library]["contentTypes"].length;i++){
-						if(i==currentStructure[library]["contentTypes"].length-1 & currentStructure[library]["contentTypes"].length==ContentTypeDepth)
-								contentTypes += "<td style='color:#1c1c1c;border-right: 2px solid #0B3861;' padding='5'>" + currentStructure[library]["contentTypes"][i] + "</td>";
-							else
-								contentTypes += "<td style='color:#1c1c1c;max-width:100px;' padding='5'>" + currentStructure[library]["contentTypes"][i] + "</td>";
-					}
-					if(currentStructure[library]["contentTypes"].length<ContentTypeDepth){
-						for(var i=0; i<(ContentTypeDepth-currentStructure[library]["contentTypes"].length);i++){
-							if(i==ContentTypeDepth-currentStructure[library]["contentTypes"].length-1)
-								contentTypes += "<td style='color:#1c1c1c;border-right: 2px solid #0B3861;'></td>";
-							else
-								contentTypes += "<td style='color:#1c1c1c;'></td>";
-						}
-					}
-				}else{
-					for(var i =0; i < ContentTypeDepth;i++){
-						if(i==ContentTypeDepth-1)
-							contentTypes += "<td style='color:#1c1c1c;border-right: 2px solid #0B3861;'></td>";
-						else
-							contentTypes += "<td style='color:#1c1c1c;'></td>";
-					}
-				}
-			}
-		
 			table += "<tr>";
 				//table += "<td style='color:#1c1c1c;'>" + numeration + "</td>";
 				for(var i=0;i<SubsiteDepth+1;i++){
@@ -1484,9 +1481,7 @@ $(function() {
 					}
 				}
 				table += renderSecurityBody(currentStructure[library]);
-				if(getContentTypes){
-					table += contentTypes;
-				}
+				table += renderContentTypesBody(currentStructure[library]);
 				if(getDefaults){
 					if("defaults" in currentStructure[library]){
 						if(defaultsDepth>0){
@@ -1521,9 +1516,7 @@ $(function() {
 							table += "<td style='color:#1c1c1c;'></td>";
 					}
 					table += renderSecurityBody(currentStructure[library]["Folders"][folder]);
-					if(getContentTypes){
-						table += contentTypes;
-					}
+					table += renderContentTypesBody(currentStructure[library]);
 					if(getDefaults){
 						if("defaults" in currentStructure[library]["Folders"][folder]){
 							for(var j=0;j<listDefaults.length;j++){
@@ -1608,14 +1601,7 @@ $(function() {
 						table += "<td style='color:#1c1c1c;'></td>";
 				}
 				table += renderSecurityBody(currentStructure[subsite]);
-				if(getContentTypes){
-					for(var i =0; i < ContentTypeDepth;i++){
-						if(i==ContentTypeDepth-1)
-							table += "<td style='color:#1c1c1c;background:#BDBDBD;border-right: 2px solid #0B3861;'></td>";
-						else
-							table += "<td style='color:#1c1c1c;background:#BDBDBD;'></td>";
-					}
-				}
+				table += renderContentTypesBody(null);
 				if(getDefaults){
 					if(defaultsDepth>0){
 						for(var i =0; i < defaultsDepth;i++){
