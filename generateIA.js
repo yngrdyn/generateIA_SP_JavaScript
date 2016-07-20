@@ -2,7 +2,7 @@ var spLibraries = ["Documents","Form Templates","List Template Gallery","Master 
 var spFields = ["Approval Status"];
 var spRoles = ["Limited Access"];
 var spFolders = ["Forms","_w","_t"];
-var spInternalNames = {"Series_x0020_Corporate_x0020_IDB":"Series", "Function_x0020_Corporate_x0020_IDB":"Function", "Project_x0020_Number":"Project Number", "System_x0020_Name":"System Name", "Function Corporate IDB":"Function", "Series Corporate IDB":"Series", "Document_x0020_Author":"Document Author","Function_x0020_Operations_x0020_IDB":"Function","Series_x0020_Operations_x0020_IDB":"Series","Approval_x0020_Number":"Approval Number","Sector_x0020_IDB":"Sector IDB","_dlc_DocIdUrl":"Document ID","Fiscal_x0020_Year_x0020_IDB":"Fiscal Year","TaxKeyword":"Tags","IDBDocs_x0020_Number":"IDBDocs Number","Editor":"Modified By","Division_x0020_or_x0020_Unit":"Division or Unit"};
+var spInternalNames = {"Series_x0020_Corporate_x0020_IDB":"Series", "Function_x0020_Corporate_x0020_IDB":"Function", "Project_x0020_Number":"Project Number", "System_x0020_Name":"System Name", "Function Corporate IDB":"Function", "Series Corporate IDB":"Series", "Document_x0020_Author":"Document Author","Function_x0020_Operations_x0020_IDB":"Function","Series_x0020_Operations_x0020_IDB":"Series","Approval_x0020_Number":"Approval Number","Sector_x0020_IDB":"Sector IDB","_dlc_DocIdUrl":"Document ID","Fiscal_x0020_Year_x0020_IDB":"Fiscal Year","TaxKeyword":"Tags","IDBDocs_x0020_Number":"IDBDocs Number","Editor":"Modified By","Division_x0020_or_x0020_Unit":"Division or Unit","Document_x0020_Language_x0020_IDB":"Document Language"};
 var spPropertyBags = ["IDBProjectNumber","IDBSiteName","IDBSector","IDBFund","IDBSiteCoordinator","IDBProjectName","IDBOrgUnit","IDBOperationType","IDBOrganizationalFunction","IDBCountry","IDBSiteType","IDBCreatedOn","IDBCreatedby","IDBSiteDescription","IDBSubSector"];
 var spViews = ['Merge Documents','Relink Documents','assetLibTemp'];
 var ordinals = ["First","Second","Third","Fourth","Fifth","Sixth","Seventh","Eight"];
@@ -12,6 +12,7 @@ var listDefaults = [];
 var listMembers = [];
 var specialNames = {};
 var structure = {};
+var defaultsStructure = {};
 var queue = [];
 var queueFolders = [];
 var queueLibraries = [];
@@ -155,6 +156,7 @@ $(function() {
 			$("#InfoOptions").hide();
 			$("#displayResults").html("");
 			structure = {};
+			defaultsStructure = {};
 			structure['url'] = $("#getStructureSite").val();
 			structure['libraries'] = {};
 			queue = [];
@@ -251,9 +253,6 @@ $(function() {
 					}
 					if(getStructure || getViews){
 						$("#progressMessages").html("").append("<img src='/teams/ITE/Office365/eZShare/SiteAssets/loading.gif'/>&nbsp;Retrieving Libraries");
-						for(var i=0;i<queue.length;i++){
-							console.log(queue[i]);
-						}
 						retrieveAllLibraries();
 						
 					}else{
@@ -633,7 +632,6 @@ $(function() {
 			ctx.load(list,'RoleAssignments.Include(Member,RoleDefinitionBindings)');
 			ctx.executeQueryAsync(function(){onQuerySucceededRetrieveAllLibrariesInfo(actualLibrary['structure'],actualLibrary['url'],actualLibrary['name'])}, onQueryFailedRetrieveAllLibrariesInfo);
 		}else{
-			console.log(queueLibraries);
 			retrieveFolders();
 			//retrieveAllDefaults();
 		}
@@ -673,6 +671,9 @@ $(function() {
 					
 					librariesStructure['Folders'][folder.get_name()]['url'] = location.protocol + '//' + location.hostname + folder.get_serverRelativeUrl();
 					
+					librariesStructure['Folders'][folder.get_name()]['defaults'] = {};
+					defaultsStructure[librariesStructure['Folders'][folder.get_name()]['url']] = librariesStructure['Folders'][folder.get_name()]['defaults'];
+					
 					librariesStructure['Folders'][folder.get_name()]['Permissions'] = {};
 					for(var permission in permissions){
 						librariesStructure['Folders'][folder.get_name()]['Permissions'][permission] = permissions[permission];
@@ -693,6 +694,11 @@ $(function() {
 		}
 		
 		librariesStructure['url'] = location.protocol + '//' + location.hostname + list.get_rootFolder().get_serverRelativeUrl();
+		
+		if(!("defaults" in librariesStructure)){
+			librariesStructure['defaults'] = {};
+		}
+		defaultsStructure[librariesStructure['url']] = librariesStructure['defaults'];
 		
 		// Setting Folders to the general Structure
 		//librariesStructure['Folders'] = Folders;
@@ -741,7 +747,6 @@ $(function() {
 		if(queueFolders.length > 0){		
 			
 			var actualFolder = queueFolders.pop();
-			console.log(actualFolder);
 			
 			var ctx = new SP.ClientContext(actualFolder['url']);
 			web = ctx.get_web();
@@ -757,14 +762,6 @@ $(function() {
 	}
 	
 	function onQuerySucceededRetrieveFolders(librariesStructure, url, name, parent, level, sender, args) {
-		console.log("Inside function");
-		console.log(folder.get_name());
-		console.log(librariesStructure);
-		console.log(url);
-		console.log(name);
-		console.log(parent);
-		console.log(level);
-		
 		if(foldersDepth < level)
 			foldersDepth = level;
 		
@@ -772,6 +769,9 @@ $(function() {
 		
 		librariesStructure['url'] = location.protocol + '//' + location.hostname + folder.get_serverRelativeUrl();
 		librariesStructure['Folders'] = {};
+		librariesStructure['defaults'] = {};
+		
+		defaultsStructure[librariesStructure['url']] = librariesStructure['defaults'];
 		
 		while (subFoldersEnumerator.moveNext()) {
 			var subFolder = subFoldersEnumerator.get_current();
@@ -816,51 +816,33 @@ $(function() {
 					retry: 3,
 					dataType: 'xml',
 					success: function (data){
-						$(data).find("a").each(function(){
-							var defaults = {};
-							$(this).find("DefaultValue").each(function(){
-								var value = $(this).text();
-								if(value.indexOf(";#")!=-1){
-									value = value.split(";#")[1].split("|")[0];
-								}
-								if($(this).attr("FieldName") in spInternalNames){
-									if($.inArray(spInternalNames[$(this).attr("FieldName")], ezDefaults) == -1){
-										defaults[spInternalNames[$(this).attr("FieldName")]] = value;
-										if($.inArray(spInternalNames[$(this).attr("FieldName")], listDefaults) == -1){
-											listDefaults.push(spInternalNames[$(this).attr("FieldName")]);
-										}
+						$(data).find("a").each(function(){							
+							var urlAux = location.protocol + '//' + location.hostname + decodeURIComponent($(this).attr("href"));
+							console.log(urlAux);
+							
+							if(urlAux in defaultsStructure){
+								console.log("worked");
+								$(this).find("DefaultValue").each(function(){
+									var value = $(this).text();
+									if(value.indexOf(";#")!=-1){
+										value = value.split(";#")[1].split("|")[0];
 									}
-								}else{
-									if($.inArray($(this).attr("FieldName"), ezDefaults) == -1){
-										defaults[$(this).attr("FieldName")] = value;
-										if($.inArray($(this).attr("FieldName"), listDefaults) == -1){
-											listDefaults.push($(this).attr("FieldName"));
+									if($(this).attr("FieldName") in spInternalNames){
+										if($.inArray(spInternalNames[$(this).attr("FieldName")], ezDefaults) == -1){
+											defaultsStructure[urlAux][spInternalNames[$(this).attr("FieldName")]] = value;
+											if($.inArray(spInternalNames[$(this).attr("FieldName")], listDefaults) == -1){
+												listDefaults.push(spInternalNames[$(this).attr("FieldName")]);
+											}
 										}
-									}
-								}
-							});
-							var folderName = $(this).attr("href").split("/");
-							folderName = decodeURIComponent(folderName[folderName.length-1]);
-							if(specialNames[folderName]==actualLibrary['name'] || folderName==actualLibrary['name']){
-								for(var defaultv in defaults){
-									actualLibrary['structure']['defaults'][defaultv] = defaults[defaultv];
-								}
-							}else{
-								if('Folders' in actualLibrary['structure']){
-									if(folderName in actualLibrary['structure']['Folders']){
-										actualLibrary['structure']['Folders'][folderName]['defaults'] = {};
-										for(var defaultv in defaults){
-											actualLibrary['structure']['Folders'][folderName]['defaults'][defaultv] = defaults[defaultv];
-										}
-									}
-									else{
-										if(specialNames[auxName]==actualLibrary['name']){
-											for(var defaultv in defaults){
-												actualLibrary['structure']['defaults'][defaultv] = defaults[defaultv];
+									}else{
+										if($.inArray($(this).attr("FieldName"), ezDefaults) == -1){
+											defaultsStructure[urlAux][$(this).attr("FieldName")] = value;
+											if($.inArray($(this).attr("FieldName"), listDefaults) == -1){
+												listDefaults.push($(this).attr("FieldName"));
 											}
 										}
 									}
-								}
+								});
 							}
 						});
 						if(queueLibrariesDefaults.length > 0){
@@ -950,7 +932,6 @@ $(function() {
 		
 		console.log(structure);
 		console.log('finished');
-		console.log(SubsiteDepth);
 		
 		createTableHtml();
 		
@@ -1503,6 +1484,35 @@ $(function() {
 
 	}
 	
+	function displayFolders(currentStructure,parentStructure,level){
+		var table = "";
+		if("Folders" in currentStructure){
+			for(var folder in currentStructure["Folders"]){
+				table += "<tr>";
+				//table += "<td style='color:#1c1c1c;'>" + numeration + "</td>";
+				for(var i=0;i<SubsiteDepth-1+2+1+level;i++){
+					table += "<td style='color:#1c1c1c;'></td>";
+				}
+				if(foldersDepth == 1 || level == foldersDepth-1)
+					table += "<td style='color:#1c1c1c;border-right: 2px solid #0B3861;max-width:150px;'><a href='" + currentStructure["Folders"][folder]['url'] + "' target='_blank'>" + folder + "</a></td>";
+				else
+					table += "<td style='color:#1c1c1c;max-width:150px;'><a href='" + currentStructure["Folders"][folder]['url'] + "' target='_blank'>" + folder + "</a></td>";
+				for(var i=0;i<foldersDepth-1-level;i++){
+					if(i == foldersDepth - 1 - level - 1)
+						table += "<td style='color:#1c1c1c;border-right: 2px solid #0B3861;'></td>";
+					else
+						table += "<td style='color:#1c1c1c;'></td>";
+				}
+				table += renderSecurityBody(currentStructure["Folders"][folder]);
+				table += renderContentTypesBody(currentStructure);
+				table += renderDefaultsBody(currentStructure["Folders"][folder],true,parentStructure);
+				table += "</tr>";
+				table += displayFolders(currentStructure["Folders"][folder],parentStructure,level+1);
+			}
+		}
+		return table;
+	}
+	
 	function displayLibraries(currentStructure,parent){
 		var table = "";
 		for(var library in currentStructure){
@@ -1524,29 +1534,7 @@ $(function() {
 				table += renderDefaultsBody(currentStructure[library]);
 			table += "</tr>";
 			
-			if("Folders" in currentStructure[library]){
-				for(var folder in currentStructure[library]["Folders"]){
-					table += "<tr>";
-					//table += "<td style='color:#1c1c1c;'>" + numeration + "</td>";
-					for(var i=0;i<SubsiteDepth-1+2+1;i++){
-						table += "<td style='color:#1c1c1c;'></td>";
-					}
-					if(foldersDepth == 1)
-						table += "<td style='color:#1c1c1c;border-right: 2px solid #0B3861;max-width:150px;'><a href='" + currentStructure[library]["Folders"][folder]['url'] + "' target='_blank'>" + folder + "</a></td>";
-					else
-						table += "<td style='color:#1c1c1c;max-width:150px;'><a href='" + currentStructure[library]["Folders"][folder]['url'] + "' target='_blank'>" + folder + "</a></td>";
-					for(var i=0;i<foldersDepth-1;i++){
-						if(i == foldersDepth - 1 - 1)
-							table += "<td style='color:#1c1c1c;border-right: 2px solid #0B3861;'></td>";
-						else
-							table += "<td style='color:#1c1c1c;'></td>";
-					}
-					table += renderSecurityBody(currentStructure[library]["Folders"][folder]);
-					table += renderContentTypesBody(currentStructure[library]);
-					table += renderDefaultsBody(currentStructure[library]["Folders"][folder],true,currentStructure[library]);
-					table += "</tr>";
-				}
-			}
+			table += displayFolders(currentStructure[library],currentStructure[library],0);
 			
 			if(getViews){
 				$("#libraryViews_" + parent).find('tr:nth-child(2)').append('<td align="center">' + library + '</td>');
