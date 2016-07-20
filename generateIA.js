@@ -1479,8 +1479,6 @@ $(function() {
 		}
 		
 		$("#InfoOptions").show();
-		
-		//console.log(columnsCount);
 
 	}
 	
@@ -1504,7 +1502,7 @@ $(function() {
 						table += "<td style='color:#1c1c1c;'></td>";
 				}
 				table += renderSecurityBody(currentStructure["Folders"][folder]);
-				table += renderContentTypesBody(currentStructure);
+				table += renderContentTypesBody(parentStructure);
 				table += renderDefaultsBody(currentStructure["Folders"][folder],true,parentStructure);
 				table += "</tr>";
 				table += displayFolders(currentStructure["Folders"][folder],parentStructure,level+1);
@@ -1596,7 +1594,7 @@ $(function() {
 			table += "</tr>";
 			if("libraries" in currentStructure[subsite]){
 				if(getViews){
-					var id_aux = subsite.replace(/\s/g,"_").replace(/,/g,"_").replace(/'/g, '').replace(/[\/|\\]/g,"_");
+					var id_aux = subsite.replace(/\s/g,"_").replace(/,/g,"_").replace(/'/g, '').replace(/[\/|\\]/g,"_").replace(/\(/g,"_").replace(/\)/g,"_");
 					var tableViews = "<table style='display:none;' id='libraryViews_" + id_aux + "' class='libraryViews' cellspacing='0'>";
 					tableViews += "<tr>";
 						tableViews += "<td style='color:#084B8A;font-weight:bold;' colspan='2'>Site</td><td align='center' colspan='" + (Object.keys(currentStructure[subsite]['libraries']).length) + "'>" + subsite + "</td>";
@@ -1624,7 +1622,7 @@ $(function() {
 					$("#displayResults").append(tableViews);
 				}
 
-				table += displayLibraries(currentStructure[subsite]["libraries"],subsite.replace(/\s/g,"_").replace(/,/g,"_").replace(/'/g, '').replace(/[\/|\\]/g,"_"));
+				table += displayLibraries(currentStructure[subsite]["libraries"],subsite.replace(/\s/g,"_").replace(/,/g,"_").replace(/'/g, '').replace(/[\/|\\]/g,"_").replace(/\(/g,"_").replace(/\)/g,"_"));
 			}
 			
 			tableProperties = "";
