@@ -1114,6 +1114,61 @@ $(function() {
 		return table;
 	}
 	
+	function renderDefaultsBody(structureObject,isFolder,parentStructure){
+		var table = "";
+		if(getDefaults){
+			if(structureObject != null){
+				if(isFolder){
+					if("defaults" in structureObject){
+						for(var j=0;j<listDefaults.length;j++){
+							if(listDefaults[j] in structureObject["defaults"])
+								table += "<td style='color:#1c1c1c;max-width:150px;'>" + structureObject["defaults"][listDefaults[j]] + "</td>";
+							else{
+								if(listDefaults[j] in parentStructure["defaults"])
+									table += "<td style='color:#1c1c1c;max-width:150px;'>" + parentStructure["defaults"][listDefaults[j]] + "</td>";
+								else
+									table += "<td style='color:#1c1c1c;'></td>";
+							}
+						}	
+					}else{
+						if(defaultsDepth>0){
+							for(var j=0;j<listDefaults.length;j++){
+								if(listDefaults[j] in parentStructure["defaults"])
+									table += "<td style='color:#1c1c1c;max-width:150px;'>" + parentStructure["defaults"][listDefaults[j]] + "</td>";
+								else
+									table += "<td style='color:#1c1c1c;'></td>";
+							}
+						}else{
+							table += "<td style='color:#1c1c1c;'></td>";
+						}
+					}
+				}else{
+					if("defaults" in structureObject){
+						if(defaultsDepth>0){
+							for(var j=0;j<listDefaults.length;j++){
+								if(listDefaults[j] in structureObject["defaults"])
+									table += "<td style='color:#1c1c1c;max-width:150px;'>" + structureObject["defaults"][listDefaults[j]] + "</td>";
+								else
+									table += "<td style='color:#1c1c1c;'></td>";
+							}
+						}else{
+							table += "<td style='color:#1c1c1c;'></td>";
+						}
+					}
+				}
+			}else{
+				if(defaultsDepth>0){
+					for(var i =0; i < listDefaults.length;i++){
+						table += "<td style='background:#BDBDBD;color:#fff;'></td>";
+					}
+				}else{
+					table += "<td style='background:#BDBDBD;color:#fff;'></td>";
+				}
+			}
+		}
+		return table;
+	}
+	
 	function createTableHtml(){
 
 		$("#progressMessages").html("").append("<img src='/teams/ITE/Office365/eZShare/SiteAssets/loading.gif'/>&nbsp; Rendering Information Architecture");
@@ -1348,15 +1403,7 @@ $(function() {
 			}
 			table += renderSecurityBody(null);
 			table += renderContentTypesBody(null);
-			if(getDefaults){
-				if(defaultsDepth>0){
-					for(var i =0; i < listDefaults.length;i++){
-						table += "<td style='background:#BDBDBD;color:#fff;'></td>";
-					}
-				}else{
-					table += "<td style='background:#BDBDBD;color:#fff;'></td>";
-				}
-			}
+			table += renderDefaultsBody(null);
 		table += "</tr>";
 		
 		$("#siteStructure").append(table);
@@ -1379,15 +1426,7 @@ $(function() {
 			}
 			table += renderSecurityBody(structure);
 			table += renderContentTypesBody(null);
-			if(getDefaults){
-				if(defaultsDepth>0){
-					for(var i =0; i < listDefaults.length;i++){
-						table += "<td style='background:#BDBDBD;color:#fff;'></td>";
-					}
-				}else{
-					table += "<td style='background:#BDBDBD;color:#fff;'></td>";
-				}
-			}
+			table += renderDefaultsBody(null);
 		table += "</tr>";
 		
 		$("#siteStructure").append(table);
@@ -1482,20 +1521,7 @@ $(function() {
 				}
 				table += renderSecurityBody(currentStructure[library]);
 				table += renderContentTypesBody(currentStructure[library]);
-				if(getDefaults){
-					if("defaults" in currentStructure[library]){
-						if(defaultsDepth>0){
-							for(var j=0;j<listDefaults.length;j++){
-								if(listDefaults[j] in currentStructure[library]["defaults"])
-									table += "<td style='color:#1c1c1c;max-width:150px;'>" + currentStructure[library]["defaults"][listDefaults[j]] + "</td>";
-								else
-									table += "<td style='color:#1c1c1c;'></td>";
-							}
-						}else{
-							table += "<td style='color:#1c1c1c;'></td>";
-						}
-					}
-				}
+				table += renderDefaultsBody(currentStructure[library]);
 			table += "</tr>";
 			
 			if("Folders" in currentStructure[library]){
@@ -1517,31 +1543,7 @@ $(function() {
 					}
 					table += renderSecurityBody(currentStructure[library]["Folders"][folder]);
 					table += renderContentTypesBody(currentStructure[library]);
-					if(getDefaults){
-						if("defaults" in currentStructure[library]["Folders"][folder]){
-							for(var j=0;j<listDefaults.length;j++){
-								if(listDefaults[j] in currentStructure[library]["Folders"][folder]["defaults"])
-									table += "<td style='color:#1c1c1c;max-width:150px;'>" + currentStructure[library]["Folders"][folder]["defaults"][listDefaults[j]] + "</td>";
-								else{
-									if(listDefaults[j] in currentStructure[library]["defaults"])
-										table += "<td style='color:#1c1c1c;max-width:150px;'>" + currentStructure[library]["defaults"][listDefaults[j]] + "</td>";
-									else
-										table += "<td style='color:#1c1c1c;'></td>";
-								}
-							}	
-						}else{
-							if(defaultsDepth>0){
-								for(var j=0;j<listDefaults.length;j++){
-									if(listDefaults[j] in currentStructure[library]["defaults"])
-										table += "<td style='color:#1c1c1c;max-width:150px;'>" + currentStructure[library]["defaults"][listDefaults[j]] + "</td>";
-									else
-										table += "<td style='color:#1c1c1c;'></td>";
-								}
-							}else{
-								table += "<td style='color:#1c1c1c;'></td>";
-							}
-						}
-					}
+					table += renderDefaultsBody(currentStructure[library]["Folders"][folder],true,currentStructure[library]);
 					table += "</tr>";
 				}
 			}
@@ -1602,15 +1604,7 @@ $(function() {
 				}
 				table += renderSecurityBody(currentStructure[subsite]);
 				table += renderContentTypesBody(null);
-				if(getDefaults){
-					if(defaultsDepth>0){
-						for(var i =0; i < defaultsDepth;i++){
-							table += "<td style='background:#BDBDBD;color:#1c1c1c;'></td>";
-						}
-					}else{
-						table += "<td style='background:#BDBDBD;color:#1c1c1c;'></td>";
-					}
-				}
+				table += renderDefaultsBody(null);
 			table += "</tr>";
 			if("libraries" in currentStructure[subsite]){
 				if(getViews){
