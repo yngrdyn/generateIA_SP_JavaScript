@@ -963,6 +963,34 @@ $(function() {
 		createTableHtml();
 	}
 	
+	function renderSecurity(isHeader,renderGroups){
+		var table = "";
+		if(isHeader){
+			if(renderGroups){
+				if(listMembers.length>0){
+					for(var j=0; j< listMembers.length;j++){
+						if(j==listMembers.length-1)
+							table += "<td style='background:#0B3861;color:#fff;border:0;border-right: 2px solid #ddd;' align='center' class='rotate'><div><span>" + listMembers[j] + "</span></div></td>";
+						else
+							table += "<td style='background:#0B3861;color:#fff;border:0;' align='center' class='rotate'><div><span>" + listMembers[j] + "</span></div></td>";
+					}
+				}else{
+					table += "<td style='background:#0B3861;color:#fff;border:0;border-right: 2px solid #ddd;'></td>";
+				}
+			}else{
+				for(var i =0; i < securityDepth;i++){
+					if(i==securityDepth-1)
+						table += "<td style='background:#0B3861;color:#fff;border:0;border-right: 2px solid #ddd;'></td>";
+					else
+						table += "<td style='background:#0B3861;color:#fff;border:0;'></td>";
+				}
+			}
+		}else{
+			
+		}
+		return table;
+	}
+	
 	function createTableHtml(){
 
 		$("#progressMessages").html("").append("<img src='/teams/ITE/Office365/eZShare/SiteAssets/loading.gif'/>&nbsp; Rendering Information Architecture");
@@ -1114,12 +1142,7 @@ $(function() {
 					table += "<td style='background:#0B3861;color:#fff;border:0;'></td>";
 			}
 			if(getSecurity){
-				for(var i =0; i < securityDepth;i++){
-					if(i==securityDepth-1)
-						table += "<td style='background:#0B3861;color:#fff;border:0;border-right: 2px solid #ddd;'></td>";
-					else
-						table += "<td style='background:#0B3861;color:#fff;border:0;'></td>";
-				}
+				table += renderSecurity(true,false);
 			}
 			if(getContentTypes){
 				for(var i =0; i < ContentTypeDepth;i++){
@@ -1158,12 +1181,7 @@ $(function() {
 						table += "<td style='background:#0B3861;color:#fff;border:0;'></td>";
 				}
 				if(getSecurity){
-					for(var j =0; j < securityDepth;j++){
-						if(j==securityDepth-1)
-							table += "<td style='background:#0B3861;color:#fff;border:0;border-right: 2px solid #ddd;'></td>";
-						else
-							table += "<td style='background:#0B3861;color:#fff;border:0;'></td>";
-					}
+					table += renderSecurity(true,false); 
 				}
 				if(getContentTypes){
 					for(var j =0; j < ContentTypeDepth;j++){
@@ -1202,12 +1220,7 @@ $(function() {
 					table += "<td style='background:#0B3861;color:#fff;border:0;'></td>";
 			}
 			if(getSecurity){
-				for(var i =0; i < securityDepth;i++){
-					if(i==securityDepth-1)
-						table += "<td style='background:#0B3861;color:#fff;border:0;border-right: 2px solid #ddd;'></td>";
-					else
-						table += "<td style='background:#0B3861;color:#fff;border:0;'></td>";
-				}
+				table += renderSecurity(true,false);
 			}
 			if(getContentTypes){
 				for(var i =0; i<ContentTypeDepth;i++){
@@ -1244,16 +1257,7 @@ $(function() {
 				if(index == foldersDepth-1){
 					table += "<td style='background:#0B3861;color:#fff;border:0;border-right: 2px solid #ddd;' padding='5' align='center'>Folder</td>";
 					if(getSecurity){
-						if(listMembers.length>0){
-							for(var j=0; j< listMembers.length;j++){
-								if(j==listMembers.length-1)
-									table += "<td style='background:#0B3861;color:#fff;border:0;border-right: 2px solid #ddd;' align='center' class='rotate'><div><span>" + listMembers[j] + "</span></div></td>";
-								else
-									table += "<td style='background:#0B3861;color:#fff;border:0;' align='center' class='rotate'><div><span>" + listMembers[j] + "</span></div></td>";
-							}
-						}else{
-							table += "<td style='background:#0B3861;color:#fff;border:0;border-right: 2px solid #ddd;'></td>";
-						}
+						table += renderSecurity(true,true);
 					}
 					if(getContentTypes){
 						for(var i =0; i < ContentTypeDepth;i++){
@@ -1284,12 +1288,7 @@ $(function() {
 							table += "<td style='background:#0B3861;color:#fff;border:0;'></td>";
 					}
 					if(getSecurity){
-						for(var i =0; i < securityDepth;i++){
-							if(i==securityDepth-1)
-								table += "<td style='background:#0B3861;color:#fff;border:0;border-right: 2px solid #ddd;'></td>";
-							else
-								table += "<td style='background:#0B3861;color:#fff;border:0;'></td>";
-						}
+						table += renderSecurity(true,false);
 					}
 					if(getContentTypes){
 						for(var i =0; i<ContentTypeDepth;i++){
