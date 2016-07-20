@@ -963,30 +963,82 @@ $(function() {
 		createTableHtml();
 	}
 	
-	function renderSecurity(isHeader,renderGroups){
+	function renderSecurityHeader(renderGroups){
 		var table = "";
-		if(isHeader){
-			if(renderGroups){
-				if(listMembers.length>0){
-					for(var j=0; j< listMembers.length;j++){
-						if(j==listMembers.length-1)
-							table += "<td style='background:#0B3861;color:#fff;border:0;border-right: 2px solid #ddd;' align='center' class='rotate'><div><span>" + listMembers[j] + "</span></div></td>";
-						else
-							table += "<td style='background:#0B3861;color:#fff;border:0;' align='center' class='rotate'><div><span>" + listMembers[j] + "</span></div></td>";
-					}
-				}else{
-					table += "<td style='background:#0B3861;color:#fff;border:0;border-right: 2px solid #ddd;'></td>";
+		if(renderGroups){
+			if(listMembers.length>0){
+				for(var j=0; j< listMembers.length;j++){
+					if(j==listMembers.length-1)
+						table += "<td style='background:#0B3861;color:#fff;border:0;border-right: 2px solid #ddd;' align='center' class='rotate'><div><span>" + listMembers[j] + "</span></div></td>";
+					else
+						table += "<td style='background:#0B3861;color:#fff;border:0;' align='center' class='rotate'><div><span>" + listMembers[j] + "</span></div></td>";
 				}
 			}else{
-				for(var i =0; i < securityDepth;i++){
-					if(i==securityDepth-1)
-						table += "<td style='background:#0B3861;color:#fff;border:0;border-right: 2px solid #ddd;'></td>";
-					else
-						table += "<td style='background:#0B3861;color:#fff;border:0;'></td>";
-				}
+				table += "<td style='background:#0B3861;color:#fff;border:0;border-right: 2px solid #ddd;'></td>";
 			}
 		}else{
-			
+			for(var i =0; i < securityDepth;i++){
+				if(i==securityDepth-1)
+					table += "<td style='background:#0B3861;color:#fff;border:0;border-right: 2px solid #ddd;'></td>";
+				else
+					table += "<td style='background:#0B3861;color:#fff;border:0;'></td>";
+			}
+		}
+		return table;
+	}
+	
+	function renderSecurityBody(){
+		var table = "";
+		for(var i =0; i < securityDepth;i++){
+			if(i==securityDepth-1)
+				table += "<td style='color:#1c1c1c;background:#BDBDBD;border-right: 2px solid #0B3861;'></td>";
+			else
+				table += "<td style='color:#1c1c1c;background:#BDBDBD;'></td>";
+		}
+		return table;
+	}
+	
+	function renderContentTypesHeader(renderOrder){
+		var table = "";
+		if(renderOrder){
+			for(var i =0; i < ContentTypeDepth;i++){
+				if(i==0)
+					table += "<td style='background:#0B3861;color:#fff;border:0;' align='center'>Default</td>";
+				else
+					if(i==ContentTypeDepth-1)
+						table += "<td style='background:#0B3861;color:#fff;border:0;border-right: 2px solid #ddd;' align='center'>" + ordinals[i] + "</td>";
+					else
+						table += "<td style='background:#0B3861;color:#fff;border:0;' align='center'>" + ordinals[i] + "</td>"
+			}
+		}else{
+			for(var i =0; i < ContentTypeDepth;i++){
+				if(i==ContentTypeDepth-1)
+					table += "<td style='background:#0B3861;color:#fff;border:0;border-right: 2px solid #ddd;'></td>";
+				else
+					table += "<td style='background:#0B3861;color:#fff;border:0;'></td>";
+			}
+		}
+		return table;
+	}
+	
+	function renderDefaultsHeader(renderFields){
+		var table = "";
+		if(renderFields){
+			if(defaultsDepth>0){
+				for(var j=0; j< listDefaults.length;j++){
+					table += "<td style='background:#0B3861;color:#fff;border:0;' align='center'>" + listDefaults[j] + "</td>";
+				}
+			}else{
+				table += "<td style='background:#0B3861;color:#fff;border:0;border-right: 2px solid #ddd;'></td>";
+			}
+		}else{
+			if(defaultsDepth>0){
+				for(var i =0; i < listDefaults.length;i++){
+					table += "<td style='background:#0B3861;color:#fff;border:0;'></td>";
+				}
+			}else{
+				table += "<td style='background:#0B3861;color:#fff;border:0;'></td>";
+			}
 		}
 		return table;
 	}
@@ -1110,21 +1162,10 @@ $(function() {
 				table += "<td colspan='" + securityDepth + "' style='background:#0B3861;color:#fff;border:0;border-right: 2px solid #ddd;' padding='10' align='center'><b>Levels:</b> No Access - 0, Read-Only - 1, Contribute - 2; Design - 3, Full control - 4</td>";
 			}
 			if(getContentTypes){
-				for(var i =0; i < ContentTypeDepth;i++){
-					if(i==ContentTypeDepth-1)
-						table += "<td style='background:#0B3861;color:#fff;border:0;border-right: 2px solid #ddd;'></td>";
-					else
-						table += "<td style='background:#0B3861;color:#fff;border:0;'></td>";
-				}
+				table += renderContentTypesHeader(false);
 			}
 			if(getDefaults){
-				if(defaultsDepth>0){
-					for(var i =0; i < listDefaults.length;i++){
-						table += "<td style='background:#0B3861;color:#fff;border:0;'></td>";
-					}
-				}else{
-					table += "<td style='background:#0B3861;color:#fff;border:0;'></td>";
-				}
+				table += renderDefaultsHeader(false);
 			}
 		table += "</tr>";
 		
@@ -1142,24 +1183,13 @@ $(function() {
 					table += "<td style='background:#0B3861;color:#fff;border:0;'></td>";
 			}
 			if(getSecurity){
-				table += renderSecurity(true,false);
+				table += renderSecurityHeader(false);
 			}
 			if(getContentTypes){
-				for(var i =0; i < ContentTypeDepth;i++){
-					if(i==ContentTypeDepth-1)
-						table += "<td style='background:#0B3861;color:#fff;border:0;border-right: 2px solid #ddd;'></td>";
-					else
-						table += "<td style='background:#0B3861;color:#fff;border:0;'></td>"
-				}
+				table += renderContentTypesHeader(false);
 			}
 			if(getDefaults){
-				if(defaultsDepth>0){
-					for(var i =0; i < listDefaults.length;i++){
-						table += "<td style='background:#0B3861;color:#fff;border:0;'></td>";
-					}
-				}else{
-					table += "<td style='background:#0B3861;color:#fff;border:0;'></td>";
-				}
+				table += renderDefaultsHeader(false);
 			}
 		table += "</tr>";
 		
@@ -1181,24 +1211,13 @@ $(function() {
 						table += "<td style='background:#0B3861;color:#fff;border:0;'></td>";
 				}
 				if(getSecurity){
-					table += renderSecurity(true,false); 
+					table += renderSecurityHeader(false); 
 				}
 				if(getContentTypes){
-					for(var j =0; j < ContentTypeDepth;j++){
-						if(j==ContentTypeDepth-1)
-							table += "<td style='background:#0B3861;color:#fff;border:0;border-right: 2px solid #ddd;'></td>";
-						else
-							table += "<td style='background:#0B3861;color:#fff;border:0;'></td>"
-					}
+					table += renderContentTypesHeader(false);
 				}
 				if(getDefaults){
-					if(defaultsDepth>0){
-						for(var i =0; i < listDefaults.length;i++){
-							table += "<td style='background:#0B3861;color:#fff;border:0;'></td>";
-						}
-					}else{
-						table += "<td style='background:#0B3861;color:#fff;border:0;'></td>";
-					}
+					table += renderDefaultsHeader(false);
 				}
 			table += "</tr>";
 		}
@@ -1220,24 +1239,13 @@ $(function() {
 					table += "<td style='background:#0B3861;color:#fff;border:0;'></td>";
 			}
 			if(getSecurity){
-				table += renderSecurity(true,false);
+				table += renderSecurityHeader(false);
 			}
 			if(getContentTypes){
-				for(var i =0; i<ContentTypeDepth;i++){
-					if(i==ContentTypeDepth-1)
-						table += "<td style='background:#0B3861;color:#fff;border:0;border-right: 2px solid #ddd;'></td>";
-					else
-						table += "<td style='background:#0B3861;color:#fff;border:0;'></td>"
-				}
+				table += renderContentTypesHeader(false);
 			}
 			if(getDefaults){
-				if(defaultsDepth>0){
-					for(var i =0; i < listDefaults.length;i++){
-						table += "<td style='background:#0B3861;color:#fff;border:0;'></td>";
-					}
-				}else{
-					table += "<td style='background:#0B3861;color:#fff;border:0;'></td>";
-				}
+				table += renderDefaultsHeader(false);
 			}
 		table += "</tr>";
 		
@@ -1257,27 +1265,13 @@ $(function() {
 				if(index == foldersDepth-1){
 					table += "<td style='background:#0B3861;color:#fff;border:0;border-right: 2px solid #ddd;' padding='5' align='center'>Folder</td>";
 					if(getSecurity){
-						table += renderSecurity(true,true);
+						table += renderSecurityHeader(true);
 					}
 					if(getContentTypes){
-						for(var i =0; i < ContentTypeDepth;i++){
-							if(i==0)
-								table += "<td style='background:#0B3861;color:#fff;border:0;' align='center'>Default</td>";
-							else
-								if(i==ContentTypeDepth-1)
-									table += "<td style='background:#0B3861;color:#fff;border:0;border-right: 2px solid #ddd;' align='center'>" + ordinals[i] + "</td>";
-								else
-									table += "<td style='background:#0B3861;color:#fff;border:0;' align='center'>" + ordinals[i] + "</td>"
-						}
+						table += renderContentTypesHeader(true);
 					}
 					if(getDefaults){
-						if(defaultsDepth>0){
-							for(var j=0; j< listDefaults.length;j++){
-								table += "<td style='background:#0B3861;color:#fff;border:0;' align='center'>" + listDefaults[j] + "</td>";
-							}
-						}else{
-							table += "<td style='background:#0B3861;color:#fff;border:0;border-right: 2px solid #ddd;'></td>";
-						}
+						table += renderDefaultsHeader(true);
 					}
 				}else{
 					table += "<td style='background:#0B3861;color:#fff;border:0;' padding='5' align='center'>Folder</td>";
@@ -1288,24 +1282,13 @@ $(function() {
 							table += "<td style='background:#0B3861;color:#fff;border:0;'></td>";
 					}
 					if(getSecurity){
-						table += renderSecurity(true,false);
+						table += renderSecurityHeader(false);
 					}
 					if(getContentTypes){
-						for(var i =0; i<ContentTypeDepth;i++){
-							if(i==ContentTypeDepth-1)
-								table += "<td style='background:#0B3861;color:#fff;border:0;border-right: 2px solid #ddd;'></td>";
-							else
-								table += "<td style='background:#0B3861;color:#fff;border:0;'></td>"
-						}
+						table += renderContentTypesHeader(false);
 					}
 					if(getDefaults){
-						if(defaultsDepth>0){
-							for(var i =0; i < listDefaults.length;i++){
-								table += "<td style='background:#0B3861;color:#fff;border:0;'></td>";
-							}
-						}else{
-							table += "<td style='background:#0B3861;color:#fff;border:0;'></td>";
-						}
+						table += renderDefaultsHeader(false);
 					}
 				}
 				
@@ -1327,12 +1310,7 @@ $(function() {
 				table += "<td style='color:#1c1c1c;border-right: 2px solid #0B3861;' colspan='" + (SubsiteDepth+1+foldersDepth+1) + "'>Site Collection Name (NO ACCESS)</td>";
 			}
 			if(getSecurity){
-				for(var i =0; i < securityDepth;i++){
-					if(i==securityDepth-1)
-						table += "<td style='color:#1c1c1c;background:#BDBDBD;border-right: 2px solid #0B3861;'></td>";
-					else
-						table += "<td style='color:#1c1c1c;background:#BDBDBD;'></td>";
-				}
+				table += renderSecurityBody();
 			}
 			if(getContentTypes){
 				for(var i =0; i < ContentTypeDepth;i++){
