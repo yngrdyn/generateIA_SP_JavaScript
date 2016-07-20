@@ -965,23 +965,25 @@ $(function() {
 	
 	function renderSecurityHeader(renderGroups){
 		var table = "";
-		if(renderGroups){
-			if(listMembers.length>0){
-				for(var j=0; j< listMembers.length;j++){
-					if(j==listMembers.length-1)
-						table += "<td style='background:#0B3861;color:#fff;border:0;border-right: 2px solid #ddd;' align='center' class='rotate'><div><span>" + listMembers[j] + "</span></div></td>";
-					else
-						table += "<td style='background:#0B3861;color:#fff;border:0;' align='center' class='rotate'><div><span>" + listMembers[j] + "</span></div></td>";
+		if(getSecurity){
+			if(renderGroups){
+				if(listMembers.length>0){
+					for(var j=0; j< listMembers.length;j++){
+						if(j==listMembers.length-1)
+							table += "<td style='background:#0B3861;color:#fff;border:0;border-right: 2px solid #ddd;' align='center' class='rotate'><div><span>" + listMembers[j] + "</span></div></td>";
+						else
+							table += "<td style='background:#0B3861;color:#fff;border:0;' align='center' class='rotate'><div><span>" + listMembers[j] + "</span></div></td>";
+					}
+				}else{
+					table += "<td style='background:#0B3861;color:#fff;border:0;border-right: 2px solid #ddd;'></td>";
 				}
 			}else{
-				table += "<td style='background:#0B3861;color:#fff;border:0;border-right: 2px solid #ddd;'></td>";
-			}
-		}else{
-			for(var i =0; i < securityDepth;i++){
-				if(i==securityDepth-1)
-					table += "<td style='background:#0B3861;color:#fff;border:0;border-right: 2px solid #ddd;'></td>";
-				else
-					table += "<td style='background:#0B3861;color:#fff;border:0;'></td>";
+				for(var i =0; i < securityDepth;i++){
+					if(i==securityDepth-1)
+						table += "<td style='background:#0B3861;color:#fff;border:0;border-right: 2px solid #ddd;'></td>";
+					else
+						table += "<td style='background:#0B3861;color:#fff;border:0;'></td>";
+				}
 			}
 		}
 		return table;
@@ -1000,22 +1002,24 @@ $(function() {
 	
 	function renderContentTypesHeader(renderOrder){
 		var table = "";
-		if(renderOrder){
-			for(var i =0; i < ContentTypeDepth;i++){
-				if(i==0)
-					table += "<td style='background:#0B3861;color:#fff;border:0;' align='center'>Default</td>";
-				else
-					if(i==ContentTypeDepth-1)
-						table += "<td style='background:#0B3861;color:#fff;border:0;border-right: 2px solid #ddd;' align='center'>" + ordinals[i] + "</td>";
+		if(getContentTypes){
+			if(renderOrder){
+				for(var i =0; i < ContentTypeDepth;i++){
+					if(i==0)
+						table += "<td style='background:#0B3861;color:#fff;border:0;' align='center'>Default</td>";
 					else
-						table += "<td style='background:#0B3861;color:#fff;border:0;' align='center'>" + ordinals[i] + "</td>"
-			}
-		}else{
-			for(var i =0; i < ContentTypeDepth;i++){
-				if(i==ContentTypeDepth-1)
-					table += "<td style='background:#0B3861;color:#fff;border:0;border-right: 2px solid #ddd;'></td>";
-				else
-					table += "<td style='background:#0B3861;color:#fff;border:0;'></td>";
+						if(i==ContentTypeDepth-1)
+							table += "<td style='background:#0B3861;color:#fff;border:0;border-right: 2px solid #ddd;' align='center'>" + ordinals[i] + "</td>";
+						else
+							table += "<td style='background:#0B3861;color:#fff;border:0;' align='center'>" + ordinals[i] + "</td>"
+				}
+			}else{
+				for(var i =0; i < ContentTypeDepth;i++){
+					if(i==ContentTypeDepth-1)
+						table += "<td style='background:#0B3861;color:#fff;border:0;border-right: 2px solid #ddd;'></td>";
+					else
+						table += "<td style='background:#0B3861;color:#fff;border:0;'></td>";
+				}
 			}
 		}
 		return table;
@@ -1023,21 +1027,23 @@ $(function() {
 	
 	function renderDefaultsHeader(renderFields){
 		var table = "";
-		if(renderFields){
-			if(defaultsDepth>0){
-				for(var j=0; j< listDefaults.length;j++){
-					table += "<td style='background:#0B3861;color:#fff;border:0;' align='center'>" + listDefaults[j] + "</td>";
+		if(getDefaults){
+			if(renderFields){
+				if(defaultsDepth>0){
+					for(var j=0; j< listDefaults.length;j++){
+						table += "<td style='background:#0B3861;color:#fff;border:0;' align='center'>" + listDefaults[j] + "</td>";
+					}
+				}else{
+					table += "<td style='background:#0B3861;color:#fff;border:0;border-right: 2px solid #ddd;'></td>";
 				}
 			}else{
-				table += "<td style='background:#0B3861;color:#fff;border:0;border-right: 2px solid #ddd;'></td>";
-			}
-		}else{
-			if(defaultsDepth>0){
-				for(var i =0; i < listDefaults.length;i++){
+				if(defaultsDepth>0){
+					for(var i =0; i < listDefaults.length;i++){
+						table += "<td style='background:#0B3861;color:#fff;border:0;'></td>";
+					}
+				}else{
 					table += "<td style='background:#0B3861;color:#fff;border:0;'></td>";
 				}
-			}else{
-				table += "<td style='background:#0B3861;color:#fff;border:0;'></td>";
 			}
 		}
 		return table;
@@ -1161,12 +1167,8 @@ $(function() {
 			if(getSecurity){
 				table += "<td colspan='" + securityDepth + "' style='background:#0B3861;color:#fff;border:0;border-right: 2px solid #ddd;' padding='10' align='center'><b>Levels:</b> No Access - 0, Read-Only - 1, Contribute - 2; Design - 3, Full control - 4</td>";
 			}
-			if(getContentTypes){
-				table += renderContentTypesHeader(false);
-			}
-			if(getDefaults){
-				table += renderDefaultsHeader(false);
-			}
+			table += renderContentTypesHeader(false);
+			table += renderDefaultsHeader(false);
 		table += "</tr>";
 		
 		$("#siteStructure").append(table);
@@ -1182,15 +1184,9 @@ $(function() {
 				else
 					table += "<td style='background:#0B3861;color:#fff;border:0;'></td>";
 			}
-			if(getSecurity){
-				table += renderSecurityHeader(false);
-			}
-			if(getContentTypes){
-				table += renderContentTypesHeader(false);
-			}
-			if(getDefaults){
-				table += renderDefaultsHeader(false);
-			}
+			table += renderSecurityHeader(false);
+			table += renderContentTypesHeader(false);
+			table += renderDefaultsHeader(false);
 		table += "</tr>";
 		
 		$("#siteStructure").append(table);
@@ -1210,15 +1206,9 @@ $(function() {
 					else
 						table += "<td style='background:#0B3861;color:#fff;border:0;'></td>";
 				}
-				if(getSecurity){
-					table += renderSecurityHeader(false); 
-				}
-				if(getContentTypes){
-					table += renderContentTypesHeader(false);
-				}
-				if(getDefaults){
-					table += renderDefaultsHeader(false);
-				}
+				table += renderSecurityHeader(false); 
+				table += renderContentTypesHeader(false);
+				table += renderDefaultsHeader(false);
 			table += "</tr>";
 		}
 		
@@ -1238,15 +1228,9 @@ $(function() {
 				else
 					table += "<td style='background:#0B3861;color:#fff;border:0;'></td>";
 			}
-			if(getSecurity){
-				table += renderSecurityHeader(false);
-			}
-			if(getContentTypes){
-				table += renderContentTypesHeader(false);
-			}
-			if(getDefaults){
-				table += renderDefaultsHeader(false);
-			}
+			table += renderSecurityHeader(false);
+			table += renderContentTypesHeader(false);
+			table += renderDefaultsHeader(false);
 		table += "</tr>";
 		
 		$("#siteStructure").append(table);
@@ -1264,15 +1248,9 @@ $(function() {
 				}
 				if(index == foldersDepth-1){
 					table += "<td style='background:#0B3861;color:#fff;border:0;border-right: 2px solid #ddd;' padding='5' align='center'>Folder</td>";
-					if(getSecurity){
-						table += renderSecurityHeader(true);
-					}
-					if(getContentTypes){
-						table += renderContentTypesHeader(true);
-					}
-					if(getDefaults){
-						table += renderDefaultsHeader(true);
-					}
+					table += renderSecurityHeader(true);
+					table += renderContentTypesHeader(true);
+					table += renderDefaultsHeader(true);
 				}else{
 					table += "<td style='background:#0B3861;color:#fff;border:0;' padding='5' align='center'>Folder</td>";
 					for (var subindex = index+1; subindex < foldersDepth; subindex++){
@@ -1281,15 +1259,9 @@ $(function() {
 						else
 							table += "<td style='background:#0B3861;color:#fff;border:0;'></td>";
 					}
-					if(getSecurity){
-						table += renderSecurityHeader(false);
-					}
-					if(getContentTypes){
-						table += renderContentTypesHeader(false);
-					}
-					if(getDefaults){
-						table += renderDefaultsHeader(false);
-					}
+					table += renderSecurityHeader(false);
+					table += renderContentTypesHeader(false);
+					table += renderDefaultsHeader(false);
 				}
 				
 			table += "</tr>";
