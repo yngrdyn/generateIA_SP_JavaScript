@@ -1,4 +1,4 @@
-var spLibraries = ["Documents","Form Templates","List Template Gallery","Master Page Gallery","Site Assets","Site Pages","Solution Gallery","Style Library","Theme Gallery","Web Part Gallery","wfpub","fpdatasources","wfsvc"]
+var spLibraries = ["Documents","Form Templates","List Template Gallery","Master Page Gallery","Site Assets","Site Pages","Solution Gallery","Style Library","Theme Gallery","Web Part Gallery","wfpub","fpdatasources","wfsvc","Converted Forms"]
 var spFields = ["Approval Status"];
 var spRoles = ["Limited Access"];
 var spFolders = ["Forms","_w","_t"];
@@ -833,7 +833,6 @@ $(function() {
 		if(getSecurity){
 			if(queueSecurity.length > 0){
 				var actualLibrary = queueSecurity.pop();
-				console.log(actualLibrary);
 				var ctx = new SP.ClientContext(actualLibrary['url']);
 				web = ctx.get_web();
 				if(actualLibrary['type']=="Library"){
@@ -855,7 +854,6 @@ $(function() {
 	
 	function onQuerySucceededGetSecurity(librariesStructure, url, name, type, sender, args) {
 		if(getSecurity){
-			console.log("succeed" + name);
 			$("#progressMessages").html("").append("<img src='/teams/ITE/Office365/eZShare/SiteAssets/loading.gif'/>&nbsp;" + name + " - Retrieving Permissions");
 			
 			// Getting the permissions
