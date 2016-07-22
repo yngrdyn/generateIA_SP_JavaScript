@@ -652,7 +652,7 @@ $(function() {
 		librariesStructure['Folders'] = {};
 		librariesStructure['Permissions'] = {};
 		
-		queueSecurity.push({'structure':librariesStructure['Permissions'],'url':url,'name':name});
+		queueSecurity.push({'structure':librariesStructure['Permissions'],'url':url,'name':name,'type':'Library'});
 		
 		while (foldersEnumerator.moveNext()) {
 			if(foldersDepth < 1)
@@ -660,6 +660,12 @@ $(function() {
 			var folder = foldersEnumerator.get_current();
 			if(spFolders.indexOf(folder.get_name())==-1){
 				librariesStructure['Folders'][folder.get_name()] = {};
+				librariesStructure['Folders'][folder.get_name()]['url'] = location.protocol + '//' + location.hostname + folder.get_serverRelativeUrl();
+				librariesStructure['Folders'][folder.get_name()]['defaults'] = {};
+				librariesStructure['Folders'][folder.get_name()]['Permissions'] = {};
+				
+				defaultsStructure[librariesStructure['Folders'][folder.get_name()]['url']] = librariesStructure['Folders'][folder.get_name()]['defaults'];
+				queueSecurity.push({'structure':librariesStructure['Folders'][folder.get_name()]['Permissions'],'url':url,'name':librariesStructure['Folders'][folder.get_name()]['url'],'type':'Folder'});
 
 				/*
 				if(getSecurity){
@@ -709,40 +715,7 @@ $(function() {
 			librariesStructure['defaults'] = {};
 		}
 		defaultsStructure[librariesStructure['url']] = librariesStructure['defaults'];
-		
-		// Setting Folders to the general Structure
-		//librariesStructure['Folders'] = Folders;
-		
-		/*
-		if(getSecurity){
-			$("#progressMessages").html("").append("<img src='/teams/ITE/Office365/eZShare/SiteAssets/loading.gif'/>&nbsp;" + name + " - Retrieving Permissions");
-			
-			// Getting the permissions
-			var permissionsEnumerator = list.get_roleAssignments().getEnumerator();
-			
-			var permissions = {};
-			currentSecurityDepth = 0;
-			while (permissionsEnumerator.moveNext()) {
-				currentSecurityDepth++;
-				var permission = permissionsEnumerator.get_current();
-				var rolesEnumerator = permission.get_roleDefinitionBindings().getEnumerator();
-				while (rolesEnumerator.moveNext()) {
-					var role = rolesEnumerator.get_current();
-					if(spRoles.indexOf(role.get_name())==-1){
-						permissions[permission.get_member().get_title()] = role.get_name();
-						if($.inArray(permission.get_member().get_title(), listMembers) == -1)
-							listMembers.push(permission.get_member().get_title());
-					}
-				}
-			}
-			
-			librariesStructure['Permissions'] = {};
-			for(var permission in permissions){
-				librariesStructure['Permissions'][permission] = permissions[permission];
-			}
-		}
-		*/
-		
+
 		retrieveAllLibrariesInfo();
 	}
 		
@@ -885,16 +858,20 @@ $(function() {
 	
 	function getSecurityElement(){
 		if(getSecurity){
-			if(queueSecurity.length > 0){	
+			if(queueSecurity.length > 0){
 				var actualLibrary = queueSecurity.pop();
 				console.log(actualLibrary);
 				var ctx = new SP.ClientContext(actualLibrary['url']);
 				web = ctx.get_web();
-				list = web.get_lists().getByTitle(actualLibrary['name']);
-
-				ctx.load(list,'RoleAssignments.Include(Member,RoleDefinitionBindings)');
+				if(actualLibrary['type']=="Library"){
+					list = web.get_lists().getByTitle(actualLibrary['name']);
+					ctx.load(list,'RoleAssignments.Include(Member,RoleDefinitionBindings)');
+				}else{
+					list = web.getFolderByServerRelativeUrl(actualLibrary['name']);
+					ctx.load(list,'ListItemAllFields.RoleAssignments.Include(Member,RoleDefinitionBindings)');
+				}
 				
-				ctx.executeQueryAsync(function(){onQuerySucceededGetSecurity(actualLibrary['structure'],actualLibrary['url'],actualLibrary['name'])}, onQueryFailedGetSecurity);
+				ctx.executeQueryAsync(function(){onQuerySucceededGetSecurity(actualLibrary['structure'],actualLibrary['url'],actualLibrary['name'],actualLibrary['type'])}, onQueryFailedGetSecurity);
 			}else{
 				retrieveRootProperties();
 			}
@@ -903,13 +880,16 @@ $(function() {
 		}
 	}
 	
-	function onQuerySucceededGetSecurity(librariesStructure, url, name, sender, args) {
+	function onQuerySucceededGetSecurity(librariesStructure, url, name, type, sender, args) {
 		if(getSecurity){
 			console.log("succeed" + name);
 			$("#progressMessages").html("").append("<img src='/teams/ITE/Office365/eZShare/SiteAssets/loading.gif'/>&nbsp;" + name + " - Retrieving Permissions");
 			
 			// Getting the permissions
-			var permissionsEnumerator = list.get_roleAssignments().getEnumerator();
+			if(type=="Library")
+				var permissionsEnumerator = list.get_roleAssignments().getEnumerator();
+			else
+				var permissionsEnumerator = list.get_listItemAllFields().get_roleAssignments().getEnumerator();
 			
 			while (permissionsEnumerator.moveNext()) {
 				var permission = permissionsEnumerator.get_current();
@@ -920,10 +900,6 @@ $(function() {
 						librariesStructure[permission.get_member().get_title()] = role.get_name();
 						if($.inArray(permission.get_member().get_title(), listMembers) == -1)
 							listMembers.push(permission.get_member().get_title());
-						else{
-							console.log("in Array: " + permission.get_member().get_title());
-							console.log(listMembers);
-						}
 					}
 				}
 			}
@@ -937,7 +913,7 @@ $(function() {
 		alert('Request failed. ' + args.get_message() + 
 			'\n' + args.get_stackTrace());
 		*/
-		console.log("error onQueryFailedGetSecurity");
+		console.log("error onQueryFailedGetSecurity: " + args.get_message() + '\n' + args.get_stackTrace());
 		getSecurityElement();
 	}
 	
@@ -1036,9 +1012,6 @@ $(function() {
 			if(structureObject != null){
 				if("Permissions" in structureObject){
 					if(Object.keys(structureObject["Permissions"]).length > 0){
-						console.log(structureObject);
-						console.log("Rendering Permissions");
-						console.log(structureObject["Permissions"]);
 						for(var j=0;j<listMembers.length;j++){
 							if(j==listMembers.length-1){
 								if(listMembers[j] in structureObject["Permissions"])
@@ -1046,9 +1019,7 @@ $(function() {
 								else
 									table += "<td style='color:#1c1c1c;background:#E6E6E6;border-right: 2px solid #0B3861;' align='center'>0</td>";
 							}else{
-								console.log("Member: " + listMembers[j]);
 								if(listMembers[j] in structureObject["Permissions"]){
-									console.log("in");
 									table += "<td style='color:#1c1c1c;max-width:150px;' align='center'>" + ezPermissions[structureObject["Permissions"][listMembers[j]]] + "</td>";
 								}
 								else{
