@@ -666,35 +666,6 @@ $(function() {
 				
 				defaultsStructure[librariesStructure['Folders'][folder.get_name()]['url']] = librariesStructure['Folders'][folder.get_name()]['defaults'];
 				queueSecurity.push({'structure':librariesStructure['Folders'][folder.get_name()]['Permissions'],'url':url,'name':librariesStructure['Folders'][folder.get_name()]['url'],'type':'Folder'});
-
-				/*
-				if(getSecurity){
-					var permissionsEnumerator = folder.get_listItemAllFields().get_roleAssignments().getEnumerator();
-					var permissions = {};
-					while (permissionsEnumerator.moveNext()) {
-						var permission = permissionsEnumerator.get_current();
-						var rolesEnumerator = permission.get_roleDefinitionBindings().getEnumerator();
-						while (rolesEnumerator.moveNext()) {
-							var role = rolesEnumerator.get_current();
-							if(spRoles.indexOf(role.get_name())==-1){
-								permissions[permission.get_member().get_title()] = role.get_name();
-								if($.inArray(permission.get_member().get_title(), listMembers) == -1)
-									listMembers.push(permission.get_member().get_title());
-							}
-						}
-					}
-					
-					librariesStructure['Folders'][folder.get_name()]['url'] = location.protocol + '//' + location.hostname + folder.get_serverRelativeUrl();
-					
-					librariesStructure['Folders'][folder.get_name()]['defaults'] = {};
-					defaultsStructure[librariesStructure['Folders'][folder.get_name()]['url']] = librariesStructure['Folders'][folder.get_name()]['defaults'];
-					
-					librariesStructure['Folders'][folder.get_name()]['Permissions'] = {};
-					for(var permission in permissions){
-						librariesStructure['Folders'][folder.get_name()]['Permissions'][permission] = permissions[permission];
-					}
-				}
-				*/
 				
 				var subFoldersEnumerator = folder.get_folders().getEnumerator();
 				
@@ -755,8 +726,10 @@ $(function() {
 		librariesStructure['url'] = location.protocol + '//' + location.hostname + folder.get_serverRelativeUrl();
 		librariesStructure['Folders'] = {};
 		librariesStructure['defaults'] = {};
+		librariesStructure['Permissions'] = {};
 		
 		defaultsStructure[librariesStructure['url']] = librariesStructure['defaults'];
+		queueSecurity.push({'structure':librariesStructure['Permissions'],'url':url,'name':librariesStructure['url'],'type':'Folder'});
 		
 		while (subFoldersEnumerator.moveNext()) {
 			var subFolder = subFoldersEnumerator.get_current();
