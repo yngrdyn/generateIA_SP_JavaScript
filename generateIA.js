@@ -17,6 +17,7 @@ var queue = [];
 var queueFolders = [];
 var queueLibraries = [];
 var queueLibrariesDefaults = [];
+var queueSecurity = [];
 var SubsiteDepth = 1;
 var ContentTypeDepth = 1;
 var defaultsDepth = 1;
@@ -164,6 +165,7 @@ $(function() {
 			queueFolders = [];
 			specialNames = {};
 			queueLibrariesDefaults = [];
+			queueSecurity = [];
 			listDefaults = [];
 			listMembers = [];
 			SubsiteDepth = 1;
@@ -272,7 +274,7 @@ $(function() {
 			});
 		}	
 	});
-
+	
 	function getAllWebs(success,error){
 	   $("#progressMessages").html("").append("<img src='/teams/ITE/Office365/eZShare/SiteAssets/loading.gif'/>&nbsp;Retrieving subsites");
 	   var ctx = new SP.ClientContext(structure['url']);
@@ -286,6 +288,7 @@ $(function() {
 		  var ctx = web.get_context();
 		  var webs = web.getSubwebsForCurrentUser(null); 
 		  ctx.load(webs,'Include(Title,Webs,Url,AllProperties,RoleAssignments.Include(Member,RoleDefinitionBindings))');
+		  //ctx.load(webs, site => site.Include(Title,Webs,Url,AllProperties));
 		  ctx.executeQueryAsync(
 			function(){
 				for(var i = 0; i < webs.get_count();i++){
@@ -627,9 +630,10 @@ $(function() {
 			web = ctx.get_web();
 			list = web.get_lists().getByTitle(actualLibrary['name']);
 
-			ctx.load(list,'RootFolder.Folders.Include(Name,ServerRelativeUrl,Folders,ListItemAllFields.RoleAssignments.Include(Member,RoleDefinitionBindings))');
+			//ctx.load(list,'RootFolder.Folders.Include(Name,ServerRelativeUrl,Folders,ListItemAllFields.RoleAssignments.Include(Member,RoleDefinitionBindings))');
+			ctx.load(list,'RootFolder.Folders.Include(Name,ServerRelativeUrl,Folders)');
 			ctx.load(list,'RootFolder.ServerRelativeUrl');
-			ctx.load(list,'RoleAssignments.Include(Member,RoleDefinitionBindings)');
+			//ctx.load(list,'RoleAssignments.Include(Member,RoleDefinitionBindings)');
 			ctx.executeQueryAsync(function(){onQuerySucceededRetrieveAllLibrariesInfo(actualLibrary['structure'],actualLibrary['url'],actualLibrary['name'])}, onQueryFailedRetrieveAllLibrariesInfo);
 		}else{
 			retrieveFolders();
@@ -646,6 +650,10 @@ $(function() {
 	
 		var Folders = {};
 		librariesStructure['Folders'] = {};
+		librariesStructure['Permissions'] = {};
+		
+		queueSecurity.push({'structure':librariesStructure['Permissions'],'url':url,'name':name});
+		
 		while (foldersEnumerator.moveNext()) {
 			if(foldersDepth < 1)
 				foldersDepth = 1;
@@ -653,6 +661,7 @@ $(function() {
 			if(spFolders.indexOf(folder.get_name())==-1){
 				librariesStructure['Folders'][folder.get_name()] = {};
 
+				/*
 				if(getSecurity){
 					var permissionsEnumerator = folder.get_listItemAllFields().get_roleAssignments().getEnumerator();
 					var permissions = {};
@@ -679,6 +688,7 @@ $(function() {
 						librariesStructure['Folders'][folder.get_name()]['Permissions'][permission] = permissions[permission];
 					}
 				}
+				*/
 				
 				var subFoldersEnumerator = folder.get_folders().getEnumerator();
 				
@@ -703,6 +713,7 @@ $(function() {
 		// Setting Folders to the general Structure
 		//librariesStructure['Folders'] = Folders;
 		
+		/*
 		if(getSecurity){
 			$("#progressMessages").html("").append("<img src='/teams/ITE/Office365/eZShare/SiteAssets/loading.gif'/>&nbsp;" + name + " - Retrieving Permissions");
 			
@@ -730,6 +741,7 @@ $(function() {
 				librariesStructure['Permissions'][permission] = permissions[permission];
 			}
 		}
+		*/
 		
 		retrieveAllLibrariesInfo();
 	}
@@ -789,8 +801,6 @@ $(function() {
 		retrieveFolders();
 	}
 	
-	
-	
 	function retrieveAllDefaults(){	
 		
 		if(getDefaults){
@@ -818,10 +828,8 @@ $(function() {
 					success: function (data){
 						$(data).find("a").each(function(){							
 							var urlAux = location.protocol + '//' + location.hostname + decodeURIComponent($(this).attr("href"));
-							console.log(urlAux);
 							
 							if(urlAux in defaultsStructure){
-								console.log("worked");
 								$(this).find("DefaultValue").each(function(){
 									var value = $(this).text();
 									if(value.indexOf(";#")!=-1){
@@ -848,7 +856,7 @@ $(function() {
 						if(queueLibrariesDefaults.length > 0){
 							retrieveAllDefaults();
 						}else{
-							retrieveRootProperties();
+							getSecurityElement();
 						}
 					},
 					error: function(xhr, errorThrown ) {
@@ -871,8 +879,66 @@ $(function() {
 				});
 			}
 		}else{
+			getSecurityElement();
+		}
+	}
+	
+	function getSecurityElement(){
+		if(getSecurity){
+			if(queueSecurity.length > 0){	
+				var actualLibrary = queueSecurity.pop();
+				console.log(actualLibrary);
+				var ctx = new SP.ClientContext(actualLibrary['url']);
+				web = ctx.get_web();
+				list = web.get_lists().getByTitle(actualLibrary['name']);
+
+				ctx.load(list,'RoleAssignments.Include(Member,RoleDefinitionBindings)');
+				
+				ctx.executeQueryAsync(function(){onQuerySucceededGetSecurity(actualLibrary['structure'],actualLibrary['url'],actualLibrary['name'])}, onQueryFailedGetSecurity);
+			}else{
+				retrieveRootProperties();
+			}
+		}else{
 			retrieveRootProperties();
 		}
+	}
+	
+	function onQuerySucceededGetSecurity(librariesStructure, url, name, sender, args) {
+		if(getSecurity){
+			console.log("succeed" + name);
+			$("#progressMessages").html("").append("<img src='/teams/ITE/Office365/eZShare/SiteAssets/loading.gif'/>&nbsp;" + name + " - Retrieving Permissions");
+			
+			// Getting the permissions
+			var permissionsEnumerator = list.get_roleAssignments().getEnumerator();
+			
+			while (permissionsEnumerator.moveNext()) {
+				var permission = permissionsEnumerator.get_current();
+				var rolesEnumerator = permission.get_roleDefinitionBindings().getEnumerator();
+				while (rolesEnumerator.moveNext()) {
+					var role = rolesEnumerator.get_current();
+					if(spRoles.indexOf(role.get_name())==-1){
+						librariesStructure[permission.get_member().get_title()] = role.get_name();
+						if($.inArray(permission.get_member().get_title(), listMembers) == -1)
+							listMembers.push(permission.get_member().get_title());
+						else{
+							console.log("in Array: " + permission.get_member().get_title());
+							console.log(listMembers);
+						}
+					}
+				}
+			}
+		}
+		
+		getSecurityElement();
+	}
+		
+	function onQueryFailedGetSecurity(sender, args) {
+		/*
+		alert('Request failed. ' + args.get_message() + 
+			'\n' + args.get_stackTrace());
+		*/
+		console.log("error onQueryFailedGetSecurity");
+		getSecurityElement();
 	}
 	
 	function retrieveRootProperties(){
@@ -918,12 +984,6 @@ $(function() {
 							listMembers.push(permission.get_member().get_title());
 					}
 				}
-			}
-			
-			// Setting permission for the root level
-			structure['Permissions'] =  {};
-			for(var permission in permissions){
-				structure['Permissions'][permission] = permissions[permission];
 			}
 		}
 		
@@ -976,6 +1036,9 @@ $(function() {
 			if(structureObject != null){
 				if("Permissions" in structureObject){
 					if(Object.keys(structureObject["Permissions"]).length > 0){
+						console.log(structureObject);
+						console.log("Rendering Permissions");
+						console.log(structureObject["Permissions"]);
 						for(var j=0;j<listMembers.length;j++){
 							if(j==listMembers.length-1){
 								if(listMembers[j] in structureObject["Permissions"])
@@ -983,10 +1046,14 @@ $(function() {
 								else
 									table += "<td style='color:#1c1c1c;background:#E6E6E6;border-right: 2px solid #0B3861;' align='center'>0</td>";
 							}else{
-								if(listMembers[j] in structureObject["Permissions"])
+								console.log("Member: " + listMembers[j]);
+								if(listMembers[j] in structureObject["Permissions"]){
+									console.log("in");
 									table += "<td style='color:#1c1c1c;max-width:150px;' align='center'>" + ezPermissions[structureObject["Permissions"][listMembers[j]]] + "</td>";
-								else
+								}
+								else{
 									table += "<td style='color:#1c1c1c;background:#E6E6E6;' align='center'>0</td>";
+								}
 							}
 						}	
 					}else{
